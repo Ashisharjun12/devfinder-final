@@ -94,22 +94,49 @@
 
 /* Custom scrollbar styles */
 .custom-scrollbar {
-  scrollbar-width: thin;
-  scrollbar-color: rgba(16, 185, 129, 0.2) transparent;
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* IE and Edge */
+  &::-webkit-scrollbar {
+    display: none; /* Chrome, Safari, Opera */
+  }
 }
 
-.custom-scrollbar::-webkit-scrollbar {
-  width: 6px;
+/* Dialog animation and glassmorphism */
+.dialog-content {
+  animation: dialog-slide 0.3s ease-out;
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(16, 185, 129, 0.1);
+  box-shadow: 
+    0 4px 6px -1px rgba(16, 185, 129, 0.05),
+    0 2px 4px -1px rgba(16, 185, 129, 0.03);
 }
 
-.custom-scrollbar::-webkit-scrollbar-track {
-  background: transparent;
+@keyframes dialog-slide {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
-.custom-scrollbar::-webkit-scrollbar-thumb {
-  background-color: rgba(16, 185, 129, 0.2);
-  border-radius: 20px;
-  border: transparent;
+/* Modern form styles */
+.form-content {
+  transition: all 0.3s ease;
+}
+
+.form-content:hover {
+  background: rgba(16, 185, 129, 0.02);
+}
+
+/* Input and textarea focus effects */
+.input-focus-effect:focus {
+  box-shadow: 
+    0 0 0 2px rgba(16, 185, 129, 0.1),
+    0 0 0 4px rgba(16, 185, 129, 0.05);
+  border-color: rgba(16, 185, 129, 0.5);
 }
 
 /* Green glow effects */

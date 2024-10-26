@@ -8,6 +8,16 @@ import { formatDate } from "@/lib/utils";
 import { Github, ExternalLink, Link2Off, GitBranch, ArrowRight } from 'lucide-react';
 import { Button } from './ui/button';
 import Link from 'next/link';
+import { MoreVertical, Edit2, Trash2 } from 'lucide-react';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { EditProjectDialog } from './EditProjectDialog';
+import { useToast } from './ui/use-toast';
+import { useRouter } from 'next/navigation';
 
 interface Project {
   _id: string;
@@ -27,9 +37,46 @@ interface Project {
 interface ProjectCardProps {
   project: Project;
   isOwner?: boolean;
+  onUpdate?: () => void;
+  onDelete?: () => void;
 }
 
-export function ProjectCard({ project, isOwner }: ProjectCardProps) {
+export function ProjectCard({ project, isOwner, onUpdate, onDelete }: ProjectCardProps) {
+  const { toast } = useToast();
+  const router = useRouter();
+
+  const handleDelete = async () => {
+    if (!confirm('Are you sure you want to delete this project?')) return;
+
+    try {
+      const response = await fetch(`/api/projects/${project._id}`, {
+        method: 'DELETE',
+      });
+
+      if (response.ok) {
+        toast({
+          title: "Success",
+          description: "Project deleted successfully",
+        });
+        onDelete?.(); // Call the callback after successful deletion
+      } else {
+        throw new Error('Failed to delete project');
+      }
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to delete project",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleProjectUpdate = () => {
+    // Call both the onUpdate callback and refresh the router
+    onUpdate?.();
+    router.refresh();
+  };
+
   return (
     <Card className="hover:border-primary/50 transition-all hover:shadow-lg hover:shadow-primary/20 bg-secondary/50 flex flex-col">
       <CardHeader className="flex flex-row items-center gap-4">
@@ -37,10 +84,38 @@ export function ProjectCard({ project, isOwner }: ProjectCardProps) {
           <AvatarImage src={project.owner.image} alt={project.owner.name} />
           <AvatarFallback>{project.owner.name[0]}</AvatarFallback>
         </Avatar>
-        <div>
+        <div className="flex-1">
           <h3 className="font-medium">{project.title}</h3>
           <p className="text-sm text-muted-foreground">by {project.owner.name}</p>
         </div>
+        {isOwner && (
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="ghost" size="icon" className="h-8 w-8">
+                <MoreVertical className="h-4 w-4" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              <EditProjectDialog 
+                project={project}
+                trigger={
+                  <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
+                    <Edit2 className="h-4 w-4 mr-2" />
+                    Edit Project
+                  </DropdownMenuItem>
+                }
+                onProjectUpdated={handleProjectUpdate}
+              />
+              <DropdownMenuItem 
+                className="text-destructive focus:text-destructive"
+                onClick={handleDelete}
+              >
+                <Trash2 className="h-4 w-4 mr-2" />
+                Delete Project
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        )}
       </CardHeader>
       <CardContent className="flex-1 flex flex-col space-y-4">
         <p className="text-sm text-muted-foreground line-clamp-2">

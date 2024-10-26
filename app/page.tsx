@@ -14,6 +14,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { formatDate } from "@/lib/utils";
 import { SearchBar } from "@/components/SearchBar";
 import { ProjectCard } from '@/components/ProjectCard';
+import { ProjectFilter } from "@/components/ProjectFilter";
 
 interface Project {
   _id: string;
@@ -57,6 +58,7 @@ export default function Home() {
   const { data: session } = useSession();
   const [projects, setProjects] = useState<Project[]>([]);
   const [filteredProjects, setFilteredProjects] = useState<Project[]>([]);
+  const [currentFilter, setCurrentFilter] = useState<'all' | 'my'>('all');
   const [isLoading, setIsLoading] = useState(true);
 
   // Use useCallback for fetchProjects
@@ -79,6 +81,17 @@ export default function Home() {
     fetchProjects();
   }, [fetchProjects]);
 
+  const handleFilterChange = (filter: 'all' | 'my') => {
+    setCurrentFilter(filter);
+    if (filter === 'my' && session?.user?.email) {
+      setFilteredProjects(projects.filter(project => 
+        project.owner.email === session.user.email
+      ));
+    } else {
+      setFilteredProjects(projects);
+    }
+  };
+
   const handleSearch = useCallback(({ text, techs }: { text: string; techs: string[] }) => {
     let filtered = [...projects];
 
@@ -95,8 +108,13 @@ export default function Home() {
       );
     }
 
+    // Apply current filter after search
+    if (currentFilter === 'my' && session?.user?.email) {
+      filtered = filtered.filter(project => project.owner.email === session.user.email);
+    }
+
     setFilteredProjects(filtered);
-  }, [projects]);
+  }, [projects, currentFilter, session]);
 
   if (isLoading) {
     return (
@@ -138,7 +156,11 @@ export default function Home() {
 
       <main className="max-w-7xl mx-auto px-6 lg:px-8 py-12">
         {session ? (
-          <div className="space-y-8">
+          <div className="space-y-6">
+            <ProjectFilter 
+              currentFilter={currentFilter}
+              onFilterChange={handleFilterChange}
+            />
             <SearchBar onSearch={handleSearch} />
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {filteredProjects.map((project) => (
@@ -152,22 +174,29 @@ export default function Home() {
           </div>
         ) : (
           <div className="space-y-20">
-            {/* Hero Section */}
-            <div className="text-center space-y-8">
-              <h2 className="text-5xl font-bold text-foreground max-w-3xl mx-auto leading-tight">
-                Connect with talented developers and build amazing projects together
-              </h2>
-              <p className="text-xl text-muted-foreground max-w-xl mx-auto">
-                Join our community of developers, share your skills, and collaborate on exciting projects.
-              </p>
-              <Link href="/auth/signin">
-                <Button 
-                  className="bg-primary hover:bg-primary-hover text-white rounded-full px-8 py-6 text-lg transition-all duration-300 hover:scale-105"
-                >
-                  Get Started
-                  <ArrowRight className="ml-2 h-5 w-5" />
-                </Button>
-              </Link>
+            {/* Hero Section with Fixed Height and Centered Content */}
+            <div className="min-h-[calc(100vh-180px)] flex flex-col items-center justify-center text-center">
+              <div className="space-y-8 max-w-3xl mx-auto">
+                <div className="h-20 w-20 bg-primary rounded-2xl flex items-center justify-center mx-auto">
+                  <Code2 className="text-white h-12 w-12" />
+                </div>
+                <h2 className="text-4xl md:text-5xl font-bold text-foreground leading-tight">
+                  Connect with talented developers and build amazing projects together
+                </h2>
+                <p className="text-lg md:text-xl text-muted-foreground max-w-xl mx-auto">
+                  Join our community of developers, share your skills, and collaborate on exciting projects.
+                </p>
+                <div className="pt-4">
+                  <Link href="/auth/signin">
+                    <Button 
+                      className="bg-primary hover:bg-primary-hover text-white rounded-full px-8 py-6 text-lg transition-all duration-300 hover:scale-105 shadow-lg hover:shadow-primary/20"
+                    >
+                      Get Started
+                      <ArrowRight className="ml-2 h-5 w-5" />
+                    </Button>
+                  </Link>
+                </div>
+              </div>
             </div>
 
             {/* Features Grid */}
@@ -198,7 +227,7 @@ export default function Home() {
               <div className="space-y-8">
                 <div className="text-center">
                   <h3 className="text-2xl font-semibold mb-4">Featured Projects</h3>
-                  <p className="text-muted-foreground max-w-2xl mx-auto">
+                  <p className="text-muted-foreground max-w-2xl mx-auto mb-8">
                     Discover exciting projects from our community. Sign in to explore more and start collaborating.
                   </p>
                 </div>
@@ -211,7 +240,7 @@ export default function Home() {
                     />
                   ))}
                 </div>
-                <div className="text-center">
+                <div className="text-center pt-8">
                   <Link href="/auth/signin">
                     <Button 
                       variant="outline" 

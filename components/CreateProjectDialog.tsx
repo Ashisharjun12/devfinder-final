@@ -55,7 +55,7 @@ const CreateProjectDialog = ({ onProjectCreated }: CreateProjectDialogProps) => 
           githubUrl: githubUrl.trim(),
           requiredSkills: selectedTech,
           stage: 'OPEN',
-          whatsappNumber: phone, // Use the phone state directly
+          whatsappNumber: phone || null, // Include WhatsApp number
         }),
       });
 
@@ -102,7 +102,7 @@ const CreateProjectDialog = ({ onProjectCreated }: CreateProjectDialogProps) => 
           Add Project
         </Button>
       </DialogTrigger>
-      <DialogContent className="sm:max-w-[600px] bg-secondary/95 backdrop-blur-lg border-primary/20 max-h-[90vh] overflow-y-auto scrollbar-hide">
+      <DialogContent className="sm:max-w-[600px] bg-secondary/95 backdrop-blur-lg border-primary/20 max-h-[85vh] overflow-y-auto custom-scrollbar">
         <DialogHeader>
           <DialogTitle className="text-2xl font-bold flex items-center gap-2">
             <Code2 className="h-6 w-6 text-primary" />
@@ -205,7 +205,7 @@ const CreateProjectDialog = ({ onProjectCreated }: CreateProjectDialogProps) => 
           </div>
 
           <div className="space-y-2">
-            <label className="text-sm font-medium">WhatsApp Number</label>
+            <label className="text-sm font-medium">WhatsApp Number (Optional)</label>
             <div className="phone-input-container">
               <PhoneInput
                 country={'in'} // Default to India
@@ -219,7 +219,7 @@ const CreateProjectDialog = ({ onProjectCreated }: CreateProjectDialogProps) => 
                 enableSearch={true}
                 searchPlaceholder="Search country..."
                 inputProps={{
-                  required: true,
+                  required: false,
                   placeholder: 'Enter WhatsApp number'
                 }}
               />

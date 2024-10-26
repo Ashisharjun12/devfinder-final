@@ -10,28 +10,33 @@ import { Badge } from "@/components/ui/badge";
 import { TechIcon, techList } from "./ui/tech-icon";
 import { useRouter } from 'next/navigation';
 import { useToast } from "@/components/ui/use-toast";
+import PhoneInput from 'react-phone-input-2';
+import 'react-phone-input-2/lib/style.css';
 
 interface Project {
-  _id: string; // Change id to _id to match MongoDB
+  _id: string;
   title: string;
   description: string;
   requiredSkills: string[];
   githubUrl?: string;
+  whatsappNumber?: string;
   stage: string;
 }
 
 interface EditProjectDialogProps {
   project: Project;
+  trigger?: React.ReactNode;
   onProjectUpdated?: () => void;
 }
 
-export function EditProjectDialog({ project, onProjectUpdated }: EditProjectDialogProps) {
+export function EditProjectDialog({ project, trigger, onProjectUpdated }: EditProjectDialogProps) {
   const router = useRouter();
   const { toast } = useToast();
   const [open, setOpen] = useState(false);
   const [title, setTitle] = useState(project.title);
   const [description, setDescription] = useState(project.description);
   const [githubUrl, setGithubUrl] = useState(project.githubUrl || '');
+  const [whatsappNumber, setWhatsappNumber] = useState(project.whatsappNumber || '');
   const [searchTech, setSearchTech] = useState('');
   const [selectedTech, setSelectedTech] = useState<string[]>(project.requiredSkills);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -49,6 +54,7 @@ export function EditProjectDialog({ project, onProjectUpdated }: EditProjectDial
           title,
           description,
           githubUrl: githubUrl.trim(),
+          whatsappNumber: whatsappNumber.trim(),
           requiredSkills: selectedTech,
         }),
       });
@@ -59,7 +65,14 @@ export function EditProjectDialog({ project, onProjectUpdated }: EditProjectDial
           description: "Project updated successfully.",
         });
         setOpen(false);
-        onProjectUpdated?.();
+        
+        // Call the onProjectUpdated callback if provided
+        if (onProjectUpdated) {
+          onProjectUpdated();
+        }
+
+        // Refresh the page data without full reload
+        router.refresh();
       } else {
         throw new Error('Failed to update project');
       }
@@ -82,15 +95,17 @@ export function EditProjectDialog({ project, onProjectUpdated }: EditProjectDial
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button 
-          variant="ghost" 
-          size="icon"
-          className="h-8 w-8 hover:bg-primary/10 hover:text-primary"
-        >
-          <Edit2 className="h-4 w-4" />
-        </Button>
+        {trigger || (
+          <Button 
+            variant="ghost" 
+            size="icon"
+            className="h-8 w-8 hover:bg-primary/10 hover:text-primary"
+          >
+            <Edit2 className="h-4 w-4" />
+          </Button>
+        )}
       </DialogTrigger>
-      <DialogContent className="sm:max-w-[600px] bg-secondary/95 backdrop-blur-lg border-primary/20">
+      <DialogContent className="sm:max-w-[600px] bg-secondary/95 backdrop-blur-lg border-primary/20 max-h-[85vh] overflow-y-auto custom-scrollbar">
         <DialogHeader>
           <DialogTitle className="text-xl font-bold">Edit Project</DialogTitle>
         </DialogHeader>
@@ -168,6 +183,32 @@ export function EditProjectDialog({ project, onProjectUpdated }: EditProjectDial
                 ))}
               </div>
             )}
+          </div>
+
+          {/* Add WhatsApp number field */}
+          <div className="space-y-2">
+            <label className="text-sm font-medium">WhatsApp Number (Optional)</label>
+            <div className="phone-input-container">
+              <PhoneInput
+                country={'in'}
+                value={whatsappNumber}
+                onChange={(phone) => setWhatsappNumber('+' + phone)}
+                inputClass="!w-full !h-10 !bg-background/50 !text-foreground !border-input"
+                containerClass="!w-full"
+                buttonClass="!bg-background/50 !border-input"
+                dropdownClass="!bg-background !text-foreground"
+                searchClass="!bg-background !text-foreground"
+                enableSearch={true}
+                searchPlaceholder="Search country..."
+                inputProps={{
+                  required: false,
+                  placeholder: 'Enter WhatsApp number'
+                }}
+              />
+            </div>
+            <p className="text-xs text-muted-foreground">
+              This number will be used for WhatsApp communication
+            </p>
           </div>
 
           <div className="flex justify-end gap-3">
