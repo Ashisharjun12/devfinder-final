@@ -3,8 +3,6 @@ import localFont from "next/font/local";
 import "./globals.css";
 import { ThemeProvider } from '@/providers/ThemeProvider';
 import { AuthProvider } from '@/providers/AuthProvider';
-import { Theme } from '@radix-ui/themes';
-import '@radix-ui/themes/styles.css';
 import { Toaster } from "@/components/ui/toaster";
 
 const geistSans = localFont({

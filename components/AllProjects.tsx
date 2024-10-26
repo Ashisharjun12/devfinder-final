@@ -15,6 +15,8 @@ import { motion } from "framer-motion";
 import { FolderGit2, Rocket, Plus } from "lucide-react";
 import { useRouter } from 'next/router';
 import CreateProjectDialog from "./CreateProjectDialog";
+import { ProjectCard } from './ProjectCard';
+import { ProjectFilter } from './ProjectFilter';
 
 interface Project {
   _id: string;

@@ -1,10 +1,10 @@
 import { getToken } from 'next-auth/jwt';
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
-import type { JWT } from 'next-auth/jwt';
 import md5 from 'md5';
 
-interface CustomJWT extends JWT {
+// Simplified JWT interface - only include what we need
+interface UserJWT {
   user?: {
     name?: string | null;
     email?: string | null;
@@ -13,31 +13,33 @@ interface CustomJWT extends JWT {
 }
 
 export async function middleware(request: NextRequest) {
-  const session = await getToken({ req: request, secret: process.env.NEXTAUTH_SECRET }) as CustomJWT;
+  const session = await getToken({ 
+    req: request, 
+    secret: process.env.NEXTAUTH_SECRET 
+  }) as UserJWT;
 
   if (session?.user) {
-    // Ensure we always have an image URL from Google
     const image = session.user.image || 
-      (session.user.email ? `https://www.gravatar.com/avatar/${md5(session.user.email)}?d=mp` : null);
+      (session.user.email && `https://www.gravatar.com/avatar/${md5(session.user.email)}?d=mp`);
 
-    // Create the user object with consistent image handling
-    const user = {
-      ...session.user,
-      image: image,
-    };
-
-    // Update the request headers with the modified user info
-    request.headers.set('x-user-info', JSON.stringify(user));
+    // Only update headers if we have user info
+    if (image) {
+      request.headers.set('x-user-info', JSON.stringify({
+        ...session.user,
+        image
+      }));
+    }
   }
 
   return NextResponse.next();
 }
 
+// Optimize matcher paths to be more specific
 export const config = {
   matcher: [
     '/projects/:path*',
     '/profile/:path*',
     '/messages/:path*',
-    '/auth/:path*'
+    '/auth/callback/:path*'  // Only match auth callback paths
   ]
 };
