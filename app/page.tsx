@@ -4,7 +4,7 @@ import { useSession } from "next-auth/react";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import UserNav from "@/components/UserNav";
-import { ArrowRight, Code2, Users, Rocket, Sparkles, Globe2 } from "lucide-react";
+import { ArrowRight, Code2, Users, Rocket, Sparkles, Globe2, Zap, Shield, GitBranch, MessageSquare } from "lucide-react";
 import CreateProjectDialog from "@/components/CreateProjectDialog";
 import { useEffect, useState, useCallback } from "react";
 import { Card, CardContent } from "@/components/ui/card";
@@ -15,6 +15,7 @@ import { formatDate } from "@/lib/utils";
 import { SearchBar } from "@/components/SearchBar";
 import { ProjectCard } from '@/components/ProjectCard';
 import { ProjectFilter } from "@/components/ProjectFilter";
+import { motion } from "framer-motion";
 
 interface Project {
   _id: string;
@@ -125,7 +126,7 @@ export default function Home() {
   }
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background flex flex-col">
       <nav className="border-b border-secondary/20 backdrop-blur-lg bg-background/80 sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-6 lg:px-8 py-4">
           <div className="flex justify-between items-center">
@@ -156,6 +157,7 @@ export default function Home() {
 
       <main className="max-w-7xl mx-auto px-6 lg:px-8 py-12">
         {session ? (
+          // Logged in content
           <div className="space-y-6">
             <ProjectFilter 
               currentFilter={currentFilter}
@@ -173,6 +175,7 @@ export default function Home() {
             </div>
           </div>
         ) : (
+          // Non-logged in content with footer
           <div className="space-y-20">
             {/* Hero Section with Fixed Height and Centered Content */}
             <div className="min-h-[calc(100vh-180px)] flex flex-col items-center justify-center text-center">
@@ -199,29 +202,6 @@ export default function Home() {
               </div>
             </div>
 
-            {/* Features Grid */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-              {features.map((feature) => {
-                const Icon = feature.icon;
-                return (
-                  <div
-                    key={feature.title}
-                    className="bg-secondary/50 p-6 rounded-xl border border-primary/10 hover:border-primary/30 transition-all"
-                  >
-                    <div className="flex items-center gap-4">
-                      <div className="h-12 w-12 rounded-lg bg-primary/10 flex items-center justify-center">
-                        <Icon className="h-6 w-6 text-primary" />
-                      </div>
-                      <div>
-                        <h3 className="text-lg font-semibold">{feature.title}</h3>
-                        <p className="text-muted-foreground">{feature.description}</p>
-                      </div>
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-
             {/* Featured Projects */}
             {projects.length > 0 && (
               <div className="space-y-8">
@@ -240,7 +220,7 @@ export default function Home() {
                     />
                   ))}
                 </div>
-                <div className="text-center pt-8">
+                <div className="text-center space-y-8 pb-20">
                   <Link href="/auth/signin">
                     <Button 
                       variant="outline" 
@@ -250,12 +230,93 @@ export default function Home() {
                       <ArrowRight className="ml-2 h-4 w-4" />
                     </Button>
                   </Link>
+
+                  {/* Stats Section */}
+                  <div className="max-w-7xl mx-auto px-6 lg:px-8 mt-16">
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-8 bg-secondary/30 rounded-xl p-8 border border-primary/10">
+                      {[
+                        { label: "Active Projects", value: "500+" },
+                        { label: "Developers", value: "2,000+" },
+                        { label: "Technologies", value: "100+" },
+                        { label: "Collaborations", value: "1,000+" }
+                      ].map((stat, index) => (
+                        <div key={stat.label} className="text-center space-y-2">
+                          <div className="text-2xl md:text-3xl font-bold text-primary">{stat.value}</div>
+                          <div className="text-sm text-muted-foreground">{stat.label}</div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Join CTA Section */}
+                  <div className="bg-gradient-to-b from-secondary/50 to-transparent p-12 rounded-xl border border-primary/10 mt-16">
+                    <h3 className="text-2xl md:text-3xl font-bold mb-4">
+                      Ready to Start Building?
+                    </h3>
+                    <p className="text-muted-foreground max-w-xl mx-auto mb-8">
+                      Join our community of developers and start collaborating on exciting projects today.
+                    </p>
+                    <Link href="/auth/signin">
+                      <Button 
+                        className="bg-primary hover:bg-primary-hover text-white rounded-full px-8 py-6 text-lg transition-all duration-300 hover:scale-105 shadow-lg hover:shadow-primary/20"
+                      >
+                        Join Now
+                        <ArrowRight className="ml-2 h-5 w-5" />
+                      </Button>
+                    </Link>
+                  </div>
                 </div>
               </div>
             )}
           </div>
         )}
       </main>
+
+      {/* Footer - Only show for non-logged in users */}
+      {!session && (
+        <footer className="mt-auto border-t border-primary/10 bg-secondary/5 relative">
+          <div className="max-w-7xl mx-auto px-6 lg:px-8 py-8">
+            <div className="flex flex-col items-center justify-center gap-4">
+              <div className="flex items-center gap-2">
+                <Code2 className="h-5 w-5 text-primary" />
+                <p className="text-sm text-muted-foreground">
+                  © 2024 KaleHunt. All rights reserved.
+                </p>
+              </div>
+              
+              {/* Social Links */}
+              <div className="flex items-center gap-4">
+                {[
+                  { label: "Twitter", href: "#" },
+                  { label: "GitHub", href: "#" },
+                  { label: "Discord", href: "#" }
+                ].map((link) => (
+                  <a
+                    key={link.label}
+                    href={link.href}
+                    className="text-sm text-muted-foreground hover:text-primary transition-colors"
+                  >
+                    {link.label}
+                  </a>
+                ))}
+              </div>
+            </div>
+          </div>
+        </footer>
+      )}
+
+      {/* Feedback Button - Show for all users */}
+      <div className="fixed bottom-8 right-8 z-50">
+        <Button
+          onClick={() => {
+            window.open('https://forms.gle/rfQ2GSUsBH1CNPJ56', '_blank');
+          }}
+          className="rounded-full bg-primary hover:bg-primary-hover text-white shadow-lg hover:shadow-primary/20 transition-all duration-300"
+        >
+          <MessageSquare className="h-4 w-4 mr-2" />
+          Send Feedback
+        </Button>
+      </div>
     </div>
   );
 }
