@@ -45,6 +45,8 @@ export function ProjectCard({ project, isOwner, onUpdate, onDelete }: ProjectCar
   const { toast } = useToast();
   const router = useRouter();
 
+  
+
   const handleDelete = async () => {
     if (!confirm('Are you sure you want to delete this project?')) return;
 
