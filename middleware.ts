@@ -9,13 +9,12 @@ export async function middleware(request: NextRequest) {
 
   // Define protected routes
   const protectedPaths = [
+   
     '/projects/new',
     '/projects/edit/:path*',
     '/projects/:path*/messages',
     '/projects/:path*/apply',
     '/projects/:path*/settings',
-    '/messages/:path*',
-    '/profile/:path*',
   ];
 
   // Check if the current path is protected
@@ -24,9 +23,10 @@ export async function middleware(request: NextRequest) {
       const baseRoute = protectedPath.split('/:path*')[0];
       return path.startsWith(baseRoute);
     }
-    return path === protectedPath;
+    return path === protectedPath || path.startsWith(protectedPath);
   });
 
+  // If path is protected and user is not authenticated
   if (isProtectedPath && !isAuthenticated) {
     const signInUrl = new URL('/auth/signin', request.url);
     signInUrl.searchParams.set('callbackUrl', request.url);
@@ -36,14 +36,14 @@ export async function middleware(request: NextRequest) {
   return NextResponse.next();
 }
 
+// Update matcher to include exact paths
 export const config = {
   matcher: [
+   
     '/projects/new',
     '/projects/edit/:path*',
     '/projects/:path*/messages',
     '/projects/:path*/apply',
     '/projects/:path*/settings',
-    '/messages/:path*',
-    '/profile/:path*',
   ]
 };

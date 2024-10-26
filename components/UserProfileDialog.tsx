@@ -4,12 +4,11 @@ import { useState } from 'react';
 import { signOut } from "next-auth/react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
-import Link from "next/link";
+import { useRouter } from 'next/navigation';
 import { motion } from "framer-motion";
 import { 
   LogOut, 
   MessageSquare, 
-  FolderGit2, 
   Settings,
   ChevronRight
 } from 'lucide-react';
@@ -30,12 +29,6 @@ interface UserProfileDialogProps {
 
 const menuItems = [
   {
-    icon: FolderGit2,
-    label: 'My Projects',
-    href: '/projects',
-    description: 'Manage your projects'
-  },
-  {
     icon: MessageSquare,
     label: 'Messages',
     href: '/messages',
@@ -50,6 +43,8 @@ const menuItems = [
 ];
 
 export function UserProfileDialog({ user }: UserProfileDialogProps) {
+  const router = useRouter();
+
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
@@ -81,25 +76,25 @@ export function UserProfileDialog({ user }: UserProfileDialogProps) {
           {menuItems.map((item, index) => {
             const Icon = item.icon;
             return (
-              <Link key={item.label} href={item.href}>
-                <motion.div
-                  initial={{ opacity: 0, x: -20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: index * 0.1 }}
-                  className="flex items-center gap-3 p-2 rounded-md hover:bg-primary/10 transition-colors cursor-pointer group"
-                >
-                  <div className="flex items-center justify-center w-8 h-8 rounded-full bg-primary/10 text-primary">
-                    <Icon className="h-4 w-4" />
-                  </div>
-                  <div className="flex-1">
-                    <p className="text-sm font-medium">{item.label}</p>
-                    <p className="text-xs text-muted-foreground">
-                      {item.description}
-                    </p>
-                  </div>
-                  <ChevronRight className="h-4 w-4 text-muted-foreground opacity-0 group-hover:opacity-100 transition-all" />
-                </motion.div>
-              </Link>
+              <motion.div
+                key={item.label}
+                initial={{ opacity: 0, x: -20 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: index * 0.1 }}
+                className="flex items-center gap-3 p-2 rounded-md hover:bg-primary/10 transition-colors cursor-pointer group"
+                onClick={() => router.push(item.href)}
+              >
+                <div className="flex items-center justify-center w-8 h-8 rounded-full bg-primary/10 text-primary">
+                  <Icon className="h-4 w-4" />
+                </div>
+                <div className="flex-1">
+                  <p className="text-sm font-medium">{item.label}</p>
+                  <p className="text-xs text-muted-foreground">
+                    {item.description}
+                  </p>
+                </div>
+                <ChevronRight className="h-4 w-4 text-muted-foreground opacity-0 group-hover:opacity-100 transition-all" />
+              </motion.div>
             );
           })}
         </div>
