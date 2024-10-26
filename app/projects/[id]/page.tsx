@@ -97,12 +97,18 @@ export default function ProjectPage({ params }: { params: { id: string } }) {
   const isOwner = session?.user?.email === project.owner.email;
 
   const handleWhatsAppChat = () => {
-    // Use the project owner's WhatsApp number if available, otherwise use community link
-    const whatsappUrl = project.whatsappNumber 
-      ? `https://wa.me/${project.whatsappNumber}`
-      : 'https://chat.whatsapp.com/B8aC6Tpt7EJA8ykRdEzK27';
-    
-    window.open(whatsappUrl, '_blank');
+    if (project?.whatsappNumber) {
+      // Include project URL in the message
+      const projectUrl = `${window.location.origin}/projects/${project._id}`;
+      const message = encodeURIComponent(
+        `Hi, I'm interested in your project "${project.title}"\n\nProject Link: ${projectUrl}`
+      );
+      const whatsappUrl = `https://wa.me/${project.whatsappNumber}?text=${message}`;
+      window.open(whatsappUrl, '_blank');
+    } else {
+      // Fallback to community link if no WhatsApp number
+      window.open('https://chat.whatsapp.com/B8aC6Tpt7EJA8ykRdEzK27', '_blank');
+    }
   };
 
   return (
