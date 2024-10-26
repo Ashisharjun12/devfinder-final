@@ -50,8 +50,16 @@ interface AllProjectsProps {
 export default function AllProjects({ initialProjects }: AllProjectsProps) {
   const [filteredProjects, setFilteredProjects] = useState(initialProjects);
   const [currentFilter, setCurrentFilter] = useState<'all' | 'my'>('all');
+  const [selectedTech, setSelectedTech] = useState<string | undefined>();
   const { data: session } = useSession();
   const { toast } = useToast();
+
+  // Get all unique skills from projects
+  const allProjectSkills = Array.from(
+    new Set(
+      initialProjects.flatMap(project => project.requiredSkills)
+    )
+  );
 
   const fetchProjects = async (filter: 'all' | 'my' = 'all') => {
     try {
@@ -116,6 +124,11 @@ export default function AllProjects({ initialProjects }: AllProjectsProps) {
     }
   };
 
+  const handleTechClick = (tech: string) => {
+    setSelectedTech(tech);
+    handleSearch({ text: '', techs: [tech] });
+  };
+
   const EmptyState = ({ type }: { type: 'all' | 'my' }) => (
     <div className="flex flex-col items-center justify-center py-12 px-4">
       <div className="bg-secondary/50 p-4 rounded-full mb-4">
@@ -164,7 +177,10 @@ export default function AllProjects({ initialProjects }: AllProjectsProps) {
         </div>
       </div>
 
-      <SearchBar onSearch={handleSearch} />
+      <SearchBar 
+        onSearch={handleSearch} 
+        projectSkills={allProjectSkills} 
+      />
       
       {filteredProjects.length === 0 ? (
         <EmptyState type={currentFilter} />
@@ -256,7 +272,8 @@ function ProjectCard({
             <Badge
               key={skill}
               variant="secondary"
-              className="flex items-center gap-1.5 px-2.5 py-1.5 bg-secondary/80 hover:bg-secondary transition-colors"
+              className="flex items-center gap-1.5 px-2.5 py-1.5 bg-secondary/80 hover:bg-secondary transition-colors cursor-pointer"
+              onClick={() => handleTechClick(skill)}
             >
               <TechIcon name={skill} className="h-4 w-4" showBackground />
               <span>{skill}</span>

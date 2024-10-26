@@ -4,7 +4,6 @@ import { useSession } from "next-auth/react";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import UserNav from "@/components/UserNav";
-import FeaturedDevelopers from "@/components/FeaturedDevelopers";
 import { ArrowRight, Code2 } from "lucide-react";
 import CreateProjectDialog from "@/components/CreateProjectDialog";
 import AllProjects from "@/components/AllProjects";
@@ -62,21 +61,7 @@ export default function Home() {
 
       <main className="max-w-7xl mx-auto px-6 lg:px-8 py-12">
         {session ? (
-          <div className="space-y-16">
-            <section className="space-y-8">
-              <div className="flex justify-between items-center">
-                <h2 className="text-2xl font-semibold text-foreground">Featured Developers</h2>
-                <Button 
-                  variant="ghost" 
-                  className="text-primary hover:text-primary/80 rounded-full group"
-                >
-                  View all 
-                  <ArrowRight className="ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform" />
-                </Button>
-              </div>
-              <FeaturedDevelopers />
-            </section>
-
+          <div className="space-y-8">
             <section className="space-y-8">
               <div className="flex justify-between items-center">
                 <h2 className="text-2xl font-semibold text-foreground">All Projects</h2>
