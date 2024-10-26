@@ -240,10 +240,10 @@ export default function Home() {
                   <div className="max-w-7xl mx-auto px-6 lg:px-8 mt-16">
                     <div className="grid grid-cols-2 md:grid-cols-4 gap-8 bg-secondary/30 rounded-xl p-8 border border-primary/10">
                       {[
-                        { label: "Active Projects", value: "500+" },
-                        { label: "Developers", value: "2,000+" },
+                        { label: "Active Projects", value: "50+" },
+                        { label: "Developers", value: "2,00+" },
                         { label: "Technologies", value: "100+" },
-                        { label: "Collaborations", value: "1,000+" }
+                        { label: "Collaborations", value: "1,00+" }
                       ].map((stat, index) => (
                         <div key={stat.label} className="text-center space-y-2">
                           <div className="text-2xl md:text-3xl font-bold text-primary">{stat.value}</div>

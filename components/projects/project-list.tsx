@@ -2,7 +2,7 @@
 
 import { useVirtualizer } from '@tanstack/react-virtual';
 import { useRef, memo } from 'react';
-import { ProjectCard } from './project-card';
+import { ProjectCard } from '@/components/projects/project-card';
 
 // Memoized ProjectCard for better performance
 const MemoizedProjectCard = memo(ProjectCard);
