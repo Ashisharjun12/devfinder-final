@@ -196,20 +196,15 @@
 
 /* Phone Input Styles */
 .phone-input-container .react-tel-input .form-control {
-  @apply w-full h-10 bg-background/50 text-foreground border-input rounded-md;
+  @apply w-full h-10 bg-background/50 text-foreground border-input;
 }
 
-.phone-input-container .react-tel-input .flag-dropdown {
-  @apply bg-background/50 border-input rounded-l-md;
-}
-
-.phone-input-container .react-tel-input .selected-flag:hover,
-.phone-input-container .react-tel-input .selected-flag:focus {
-  @apply bg-background/70;
+.phone-input-container .react-tel-input .selected-flag {
+  @apply bg-background/50 hover:bg-background;
 }
 
 .phone-input-container .react-tel-input .country-list {
-  @apply bg-background text-foreground border-input;
+  @apply bg-background text-foreground;
 }
 
 .phone-input-container .react-tel-input .country-list .country:hover {
@@ -220,6 +215,10 @@
   @apply bg-primary/20;
 }
 
-.phone-input-container .react-tel-input .search-box {
-  @apply bg-background text-foreground border-input;
+.phone-input-container .react-tel-input .selected-flag .arrow {
+  @apply border-foreground/50;
+}
+
+.phone-input-container .react-tel-input .selected-flag .arrow.up {
+  @apply border-foreground;
 }

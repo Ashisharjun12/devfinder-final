@@ -61,6 +61,7 @@ export default function Home() {
   const [filteredProjects, setFilteredProjects] = useState<Project[]>([]);
   const [currentFilter, setCurrentFilter] = useState<'all' | 'my'>('all');
   const [isLoading, setIsLoading] = useState(true);
+  const [showAllProjects, setShowAllProjects] = useState(false);
 
   // Use useCallback for fetchProjects
   const fetchProjects = useCallback(async () => {
@@ -145,7 +146,19 @@ export default function Home() {
               <h1 className="text-2xl font-bold text-foreground">DevFinder</h1>
             </div>
             <div className="flex items-center gap-4">
-              {session && <CreateProjectDialog />}
+              {session && (
+                <>
+                  {/* Join Community Button */}
+                  <Button 
+                    onClick={handleJoinCommunity}
+                    className="rounded-full bg-[#25D366] hover:bg-[#128C7E] text-white flex items-center gap-2 px-6 transition-all duration-300"
+                  >
+                    <Users className="h-5 w-5" />
+                    Join Community
+                  </Button>
+                  <CreateProjectDialog />
+                </>
+              )}
               {session ? (
                 <UserNav user={session.user} />
               ) : (
@@ -167,13 +180,25 @@ export default function Home() {
         {session ? (
           // Logged in content
           <div className="space-y-6">
-            <ProjectFilter 
-              currentFilter={currentFilter}
-              onFilterChange={handleFilterChange}
-            />
+            <div className="flex justify-between items-center">
+              <ProjectFilter 
+                currentFilter={currentFilter}
+                onFilterChange={handleFilterChange}
+              />
+              {filteredProjects.length > 6 && (
+                <Button
+                  onClick={() => setShowAllProjects(true)}
+                  variant="outline"
+                  className="flex items-center gap-2"
+                >
+                  View All Projects
+                  <ArrowRight className="h-4 w-4" />
+                </Button>
+              )}
+            </div>
             <SearchBar onSearch={handleSearch} />
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {filteredProjects.map((project) => (
+              {(showAllProjects ? filteredProjects : filteredProjects.slice(0, 6)).map((project) => (
                 <ProjectCard 
                   key={project._id} 
                   project={project}
@@ -210,69 +235,37 @@ export default function Home() {
               </div>
             </div>
 
-            {/* Featured Projects */}
+            {/* Featured Projects - Show only 3 most recent */}
             {projects.length > 0 && (
               <div className="space-y-8">
                 <div className="text-center">
                   <h3 className="text-2xl font-semibold mb-4">Featured Projects</h3>
                   <p className="text-muted-foreground max-w-2xl mx-auto mb-8">
-                    Discover exciting projects from our community. Sign in to explore more and start collaborating.
+                    Discover our latest projects. Sign in to explore more and start collaborating.
                   </p>
                 </div>
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                  {projects.slice(0, 6).map((project) => (
-                    <ProjectCard 
-                      key={project._id} 
-                      project={project}
-                      isOwner={false}
-                    />
-                  ))}
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                  {projects
+                    .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
+                    .slice(0, 3)
+                    .map((project) => (
+                      <ProjectCard 
+                        key={project._id} 
+                        project={project}
+                        isOwner={false}
+                      />
+                    ))}
                 </div>
-                <div className="text-center space-y-8 pb-20">
+                <div className="text-center pt-8">
                   <Link href="/auth/signin">
                     <Button 
                       variant="outline" 
                       className="rounded-full border-2 border-primary text-primary hover:bg-primary hover:text-white transition-all duration-300"
                     >
-                      View All Projects
+                      Sign in to View More Projects
                       <ArrowRight className="ml-2 h-4 w-4" />
                     </Button>
                   </Link>
-
-                  {/* Stats Section */}
-                  <div className="max-w-7xl mx-auto px-6 lg:px-8 mt-16">
-                    <div className="grid grid-cols-2 md:grid-cols-4 gap-8 bg-secondary/30 rounded-xl p-8 border border-primary/10">
-                      {[
-                        { label: "Active Projects", value: "50+" },
-                        { label: "Developers", value: "2,00+" },
-                        { label: "Technologies", value: "100+" },
-                        { label: "Collaborations", value: "1,00+" }
-                      ].map((stat, index) => (
-                        <div key={stat.label} className="text-center space-y-2">
-                          <div className="text-2xl md:text-3xl font-bold text-primary">{stat.value}</div>
-                          <div className="text-sm text-muted-foreground">{stat.label}</div>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-
-                  {/* Join CTA Section */}
-                  <div className="bg-gradient-to-b from-secondary/50 to-transparent p-12 rounded-xl border border-primary/10 mt-16">
-                    <h3 className="text-2xl md:text-3xl font-bold mb-4">
-                      Ready to Start Building?
-                    </h3>
-                    <p className="text-muted-foreground max-w-xl mx-auto mb-8">
-                      Join our community of developers and start collaborating on exciting projects today.
-                    </p>
-                    
-                      <Button onClick={handleJoinCommunity}
-                        className="bg-primary hover:bg-primary-hover text-white rounded-full px-8 py-6 text-lg transition-all duration-300 hover:scale-105 shadow-lg hover:shadow-primary/20"
-                      >
-                        Join Now
-                        <ArrowRight className="ml-2 h-5 w-5" />
-                      </Button>
-                    
-                  </div>
                 </div>
               </div>
             )}
@@ -280,37 +273,78 @@ export default function Home() {
         )}
       </main>
 
-      {/* Footer - Only show for non-logged in users */}
+      {/* Stats and Join CTA Section */}
       {!session && (
-        <footer className="mt-auto border-t border-primary/10 bg-secondary/5 relative">
-          <div className="max-w-7xl mx-auto px-6 lg:px-8 py-8">
-            <div className="flex flex-col items-center justify-center gap-4">
-              <div className="flex items-center gap-2">
-                <Code2 className="h-5 w-5 text-primary" />
-                <p className="text-sm text-muted-foreground">
-                  © 2024 KaleHunt. All rights reserved.
-                </p>
-              </div>
-              
-              {/* Social Links */}
-              <div className="flex items-center gap-4">
-                {[
-                  { label: "Twitter", href: "#" },
-                  { label: "GitHub", href: "#" },
-                  { label: "Discord", href: "#" }
-                ].map((link) => (
-                  <a
-                    key={link.label}
-                    href={link.href}
-                    className="text-sm text-muted-foreground hover:text-primary transition-colors"
-                  >
-                    {link.label}
-                  </a>
-                ))}
+        <div>
+          {/* Stats Section */}
+          <div className="max-w-7xl mx-auto px-6 lg:px-8 mt-16">
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-8 bg-secondary/30 rounded-xl p-8 border border-primary/10">
+              {[
+                { label: "Active Projects", value: "50+" },
+                { label: "Developers", value: "2,00+" },
+                { label: "Technologies", value: "100+" },
+                { label: "Collaborations", value: "1,00+" }
+              ].map((stat, index) => (
+                <div key={stat.label} className="text-center space-y-2">
+                  <div className="text-2xl md:text-3xl font-bold text-primary">{stat.value}</div>
+                  <div className="text-sm text-muted-foreground">{stat.label}</div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Join CTA Section - Centered */}
+          <div className="max-w-7xl mx-auto px-6 lg:px-8 mt-16">
+            <div className="bg-gradient-to-b from-secondary/50 to-transparent p-12 rounded-xl border border-primary/10 text-center">
+              <h3 className="text-2xl md:text-3xl font-bold mb-4">
+                Ready to Start Building?
+              </h3>
+              <p className="text-muted-foreground max-w-xl mx-auto mb-8">
+                Join our community of developers and start collaborating on exciting projects today.
+              </p>
+              <div className="flex justify-center">
+                <Button 
+                  onClick={handleJoinCommunity}
+                  className="bg-primary hover:bg-primary-hover text-white rounded-full px-8 py-6 text-lg transition-all duration-300 hover:scale-105 shadow-lg hover:shadow-primary/20"
+                >
+                  Join Now
+                  <ArrowRight className="ml-2 h-5 w-5" />
+                </Button>
               </div>
             </div>
           </div>
-        </footer>
+
+          {/* Footer remains the same */}
+          <footer className="mt-auto border-t border-primary/10 bg-secondary/5 relative">
+            <div className="max-w-7xl mx-auto px-6 lg:px-8 py-8">
+              <div className="flex flex-col items-center justify-center gap-4">
+                <div className="flex items-center gap-2">
+                  <Code2 className="h-5 w-5 text-primary" />
+                  <p className="text-sm text-muted-foreground">
+                    © 2024 KaleHunt. All rights reserved.
+                  </p>
+                </div>
+                
+                {/* Social Links */}
+                <div className="flex items-center gap-4">
+                  {[
+                    { label: "Twitter", href: "#" },
+                    { label: "GitHub", href: "https://github.com/Ashisharjun12" },
+                    { label: "Discord", href: "#" }
+                  ].map((link) => (
+                    <a
+                      key={link.label}
+                      href={link.href}
+                      className="text-sm text-muted-foreground hover:text-primary transition-colors"
+                    >
+                      {link.label}
+                    </a>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </footer>
+        </div>
       )}
 
       {/* Feedback Button - Show for all users */}

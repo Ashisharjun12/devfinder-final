@@ -6,7 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { TechIcon } from "@/components/ui/tech-icon";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Github, Calendar, Clock, ArrowLeft, ExternalLink, MessageSquare } from "lucide-react";
+import { Github, Calendar, Clock, ArrowLeft, ExternalLink, MessageCircle, MessageSquare } from "lucide-react";
 import { formatDate } from "@/lib/utils";
 import ProjectTimeline from "@/components/ProjectTimeline";
 import Link from 'next/link';
@@ -96,6 +96,15 @@ export default function ProjectPage({ params }: { params: { id: string } }) {
 
   const isOwner = session?.user?.email === project.owner.email;
 
+  const handleWhatsAppChat = () => {
+    // Use the project owner's WhatsApp number if available, otherwise use community link
+    const whatsappUrl = project.whatsappNumber 
+      ? `https://wa.me/${project.whatsappNumber}`
+      : 'https://chat.whatsapp.com/B8aC6Tpt7EJA8ykRdEzK27';
+    
+    window.open(whatsappUrl, '_blank');
+  };
+
   return (
     <div className="min-h-screen bg-background">
       {/* Back Navigation */}
@@ -144,13 +153,31 @@ export default function ProjectPage({ params }: { params: { id: string } }) {
                 </div>
               </div>
 
-              {/* Show WhatsApp button only for non-owners */}
-              {!isOwner && project.whatsappNumber && (
-                <WhatsAppButton 
-                  whatsappNumber={project.whatsappNumber}
-                  projectTitle={project.title}
-                  projectId={project._id}
-                />
+              {/* Contact buttons for non-owners */}
+              {session && !isOwner && (
+                <div className="pt-4 border-t border-primary/10">
+                  {project.whatsappNumber && (
+                    <Button
+                      onClick={handleWhatsAppChat}
+                      className="w-full bg-green-500 hover:bg-green-600 text-white flex items-center gap-2 mb-2"
+                    >
+                      <MessageCircle className="h-4 w-4" />
+                      Contact via WhatsApp
+                    </Button>
+                  )}
+                 
+                </div>
+              )}
+
+              {/* Show sign-in prompt for non-logged-in users */}
+              {!session && (
+                <div className="pt-4 border-t border-primary/10">
+                  <Link href={`/auth/signin?callbackUrl=${encodeURIComponent(`/projects/${params.id}`)}`}>
+                    <Button className="w-full">
+                      Sign in to Contact Project Owner
+                    </Button>
+                  </Link>
+                </div>
               )}
             </motion.div>
 

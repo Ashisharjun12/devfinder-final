@@ -55,7 +55,7 @@ const CreateProjectDialog = ({ onProjectCreated }: CreateProjectDialogProps) => 
           githubUrl: githubUrl.trim(),
           requiredSkills: selectedTech,
           stage: 'OPEN',
-          whatsappNumber: phone || null, // Include WhatsApp number
+          whatsappNumber: phone ? `+${phone}` : null, // Format phone number with +
         }),
       });
 
@@ -210,7 +210,7 @@ const CreateProjectDialog = ({ onProjectCreated }: CreateProjectDialogProps) => 
               <PhoneInput
                 country={'in'} // Default to India
                 value={phone}
-                onChange={(phone) => setPhone('+' + phone)}
+                onChange={(phone) => setPhone(phone)}
                 inputClass="!w-full !h-10 !bg-background/50 !text-foreground !border-input"
                 containerClass="!w-full"
                 buttonClass="!bg-background/50 !border-input"
@@ -225,7 +225,7 @@ const CreateProjectDialog = ({ onProjectCreated }: CreateProjectDialogProps) => 
               />
             </div>
             <p className="text-xs text-muted-foreground">
-              This number will be used for WhatsApp communication
+              Add your WhatsApp number with country code for direct contact
             </p>
           </div>
 

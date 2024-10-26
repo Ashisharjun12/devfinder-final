@@ -30,14 +30,7 @@ const ProjectSchema = new mongoose.Schema({
   },
   whatsappNumber: {
     type: String,
-    trim: true,
-    validate: {
-      validator: function(v: string) {
-        if (!v) return true;
-        return /^\+[1-9]\d{6,14}$/.test(v);
-      },
-      message: props => `${props.value} is not a valid phone number. Please include country code.`
-    }
+    default: null,
   },
   requiredSkills: [{
     type: String,
