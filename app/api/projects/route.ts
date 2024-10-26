@@ -38,7 +38,6 @@ export async function GET(request: Request) {
     
     const projects = await Project.find(mongoQuery)
       .populate('owner', 'name image email')
-      .populate('members.user', 'name image email')
       .sort({ createdAt: -1 });
 
     return NextResponse.json(projects);
@@ -62,7 +61,7 @@ export async function POST(req: Request) {
       );
     }
 
-    const { title, description, requiredSkills, stage, githubUrl } = await req.json();
+    const { title, description, requiredSkills, stage, githubUrl, whatsappNumber } = await req.json();
 
     await connectDB();
 
@@ -74,34 +73,20 @@ export async function POST(req: Request) {
       );
     }
 
-    // Create project with owner as first member
-    const projectData = {
+    const project = new Project({
       owner: user._id,
       title,
       description,
       requiredSkills,
       stage: stage || 'OPEN',
       githubUrl: githubUrl || null,
-      members: [{
-        user: user._id,
-        role: 'OWNER',
-        status: 'ACCEPTED',
-        joinedAt: new Date()
-      }]
-    };
-
-    const project = new Project(projectData);
-    await project.save();
-
-    // Add project to user's projects
-    await User.findByIdAndUpdate(user._id, {
-      $push: { projects: project._id }
+      whatsappNumber: whatsappNumber || null
     });
 
-    // Populate owner details for the response
+    await project.save();
+
     const populatedProject = await Project.findById(project._id)
-      .populate('owner', 'name image email')
-      .populate('members.user', 'name image email');
+      .populate('owner', 'name image email');
 
     return new NextResponse(
       JSON.stringify(populatedProject), 
@@ -120,12 +105,7 @@ export async function POST(req: Request) {
         message: error.message || 'Internal Server Error',
         details: error.errors || {} 
       }), 
-      { 
-        status: 500,
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      }
+      { status: 500 }
     );
   }
 }

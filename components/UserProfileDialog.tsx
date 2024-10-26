@@ -5,9 +5,8 @@ import { signOut } from "next-auth/react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion } from "framer-motion";
 import { 
-  User, 
   LogOut, 
   MessageSquare, 
   FolderGit2, 
@@ -17,7 +16,6 @@ import {
 import {
   DropdownMenu,
   DropdownMenuContent,
-  DropdownMenuItem,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
@@ -31,12 +29,6 @@ interface UserProfileDialogProps {
 }
 
 const menuItems = [
-  {
-    icon: User,
-    label: 'Profile',
-    href: '/profile',
-    description: 'View and edit your profile'
-  },
   {
     icon: FolderGit2,
     label: 'My Projects',

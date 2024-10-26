@@ -6,28 +6,14 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { TechIcon } from "@/components/ui/tech-icon";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Github, Users, Calendar, Clock, ArrowLeft, ExternalLink, MessageSquare } from "lucide-react";
+import { Github, Calendar, Clock, ArrowLeft, ExternalLink, MessageSquare } from "lucide-react";
 import { formatDate } from "@/lib/utils";
 import ProjectTimeline from "@/components/ProjectTimeline";
 import Link from 'next/link';
 import { useToast } from '@/components/ui/use-toast';
 import { motion } from 'framer-motion';
 import { useRouter } from 'next/navigation';
-import { ProjectNotifications } from '@/components/ProjectNotifications';
-import { ConnectButton } from '@/components/ConnectButton';
-
-interface ProjectMember {
-  _id: string;
-  user: {
-    _id: string;
-    name: string;
-    email: string;
-    image: string;
-  };
-  role: 'OWNER' | 'MEMBER';
-  status: 'PENDING' | 'ACCEPTED' | 'REJECTED';
-  joinedAt: string;
-}
+import { WhatsAppButton } from '@/components/WhatsAppButton';
 
 interface Project {
   _id: string;
@@ -36,13 +22,13 @@ interface Project {
   requiredSkills: string[];
   githubUrl?: string;
   stage: string;
+  whatsappNumber?: string;
   owner: {
     _id: string;
     name: string;
     email: string;
     image: string;
   };
-  members: ProjectMember[];
   createdAt: string;
   updatedAt: string;
 }
@@ -97,18 +83,22 @@ export default function ProjectPage({ params }: { params: { id: string } }) {
     }
   }, [params.id, toast]);
 
+  const handleWhatsAppMessage = () => {
+    if (project?.whatsappNumber) {
+      const message = encodeURIComponent(`Hi, I'm interested in your project "${project.title}"`);
+      window.open(`https://wa.me/${project.whatsappNumber}?text=${message}`, '_blank');
+    }
+  };
+
   if (loading) return <div>Loading...</div>;
   if (error) return <div>{error}</div>;
   if (!project) return <div>Project not found</div>;
 
   const isOwner = session?.user?.email === project.owner.email;
-  const currentMember = project.members.find(
-    member => member.user.email === session?.user?.email
-  );
 
   return (
     <div className="min-h-screen bg-background">
-      {/* Back Navigation with Gradient Border */}
+      {/* Back Navigation */}
       <div className="border-b border-primary/10 bg-secondary/5">
         <div className="max-w-7xl mx-auto px-6 lg:px-8 py-4">
           <Link 
@@ -132,20 +122,15 @@ export default function ProjectPage({ params }: { params: { id: string } }) {
           <div className="lg:col-span-1 space-y-6">
             {/* Owner Card */}
             <motion.div variants={item} className="bg-secondary/50 rounded-lg p-6 space-y-4 border border-primary/10">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-4">
-                  <Avatar className="h-14 w-14 ring-2 ring-primary/20">
-                    <AvatarImage src={project.owner.image} alt={project.owner.name} />
-                    <AvatarFallback>{project.owner.name[0]}</AvatarFallback>
-                  </Avatar>
-                  <div>
-                    <h3 className="font-medium text-lg">{project.owner.name}</h3>
-                    <p className="text-sm text-muted-foreground">Project Owner</p>
-                  </div>
+              <div className="flex items-center gap-4">
+                <Avatar className="h-14 w-14 ring-2 ring-primary/20">
+                  <AvatarImage src={project.owner.image} alt={project.owner.name} />
+                  <AvatarFallback>{project.owner.name[0]}</AvatarFallback>
+                </Avatar>
+                <div>
+                  <h3 className="font-medium text-lg">{project.owner.name}</h3>
+                  <p className="text-sm text-muted-foreground">Project Owner</p>
                 </div>
-                {isOwner && (
-                  <ProjectNotifications projectId={project._id} />
-                )}
               </div>
               
               <div className="space-y-3 pt-4 border-t border-primary/10">
@@ -159,17 +144,13 @@ export default function ProjectPage({ params }: { params: { id: string } }) {
                 </div>
               </div>
 
-              {!isOwner && (
-                <div className="flex gap-2 pt-2">
-                  <ConnectButton projectId={project._id} />
-                  <Button 
-                    variant="outline" 
-                    className="flex-1 border-primary/20 hover:bg-primary/10"
-                  >
-                    <MessageSquare className="h-4 w-4 mr-2" />
-                    Message
-                  </Button>
-                </div>
+              {/* Show WhatsApp button only for non-owners */}
+              {!isOwner && project.whatsappNumber && (
+                <WhatsAppButton 
+                  whatsappNumber={project.whatsappNumber}
+                  projectTitle={project.title}
+                  projectId={project._id}
+                />
               )}
             </motion.div>
 

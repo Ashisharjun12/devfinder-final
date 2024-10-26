@@ -28,6 +28,17 @@ const ProjectSchema = new mongoose.Schema({
     },
     default: null,
   },
+  whatsappNumber: {
+    type: String,
+    trim: true,
+    validate: {
+      validator: function(v: string) {
+        if (!v) return true;
+        return /^\+[1-9]\d{6,14}$/.test(v);
+      },
+      message: props => `${props.value} is not a valid phone number. Please include country code.`
+    }
+  },
   requiredSkills: [{
     type: String,
     trim: true
@@ -37,39 +48,6 @@ const ProjectSchema = new mongoose.Schema({
     enum: ['OPEN', 'IN_PROGRESS', 'COMPLETED', 'ON_HOLD'],
     default: 'OPEN',
   },
-  connectionRequests: [{
-    user: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: 'User',
-      required: true
-    },
-    status: {
-      type: String,
-      enum: ['PENDING', 'ACCEPTED', 'REJECTED'],
-      default: 'PENDING'
-    },
-    message: String,
-    createdAt: {
-      type: Date,
-      default: Date.now
-    }
-  }],
-  members: [{
-    user: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: 'User',
-      required: true
-    },
-    role: {
-      type: String,
-      enum: ['OWNER', 'MEMBER'],
-      default: 'MEMBER'
-    },
-    joinedAt: {
-      type: Date,
-      default: Date.now
-    }
-  }],
   createdAt: {
     type: Date,
     default: Date.now,

@@ -76,11 +76,12 @@ export async function PUT(
       return new NextResponse('Unauthorized', { status: 403 });
     }
 
-    // Update project
+    // Update project including WhatsApp number
     const updatedProject = await Project.findByIdAndUpdate(
       params.id,
       {
         ...body,
+        whatsappNumber: body.whatsappNumber || null,
         updatedAt: new Date(),
       },
       { new: true }
@@ -106,29 +107,20 @@ export async function GET(
 
     const project = await Project.findById(params.id)
       .populate('owner', 'name image email')
-      .populate('members.user', 'name image email')
       .lean();
 
     if (!project) {
       return new NextResponse('Project not found', { status: 404 });
     }
 
-    // Convert _id to string for serialization
+    // Convert _id to string
     const serializedProject = {
       ...project,
       _id: project._id.toString(),
       owner: {
         ...project.owner,
         _id: project.owner._id.toString()
-      },
-      members: project.members.map(member => ({
-        ...member,
-        _id: member._id.toString(),
-        user: {
-          ...member.user,
-          _id: member.user._id.toString()
-        }
-      }))
+      }
     };
 
     return NextResponse.json(serializedProject);

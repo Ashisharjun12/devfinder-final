@@ -10,6 +10,8 @@ import { Badge } from "@/components/ui/badge";
 import { TechIcon, techList } from "./ui/tech-icon";
 import { useRouter } from 'next/navigation';
 import { useToast } from "@/components/ui/use-toast";
+import PhoneInput from 'react-phone-input-2';
+import 'react-phone-input-2/lib/style.css';
 
 interface CreateProjectDialogProps {
   onProjectCreated?: () => void;
@@ -25,6 +27,7 @@ const CreateProjectDialog = ({ onProjectCreated }: CreateProjectDialogProps) => 
   const [searchTech, setSearchTech] = useState('');
   const [selectedTech, setSelectedTech] = useState<string[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [phone, setPhone] = useState('');
 
   const handleOpenChange = (newOpen: boolean) => {
     setOpen(newOpen);
@@ -52,6 +55,7 @@ const CreateProjectDialog = ({ onProjectCreated }: CreateProjectDialogProps) => 
           githubUrl: githubUrl.trim(),
           requiredSkills: selectedTech,
           stage: 'OPEN',
+          whatsappNumber: phone, // Use the phone state directly
         }),
       });
 
@@ -61,7 +65,7 @@ const CreateProjectDialog = ({ onProjectCreated }: CreateProjectDialogProps) => 
           description: "Project created successfully.",
         });
         handleOpenChange(false);
-        onProjectCreated?.(); // Call the callback after successful creation
+        onProjectCreated?.();
       } else {
         throw new Error('Failed to create project');
       }
@@ -198,6 +202,31 @@ const CreateProjectDialog = ({ onProjectCreated }: CreateProjectDialogProps) => 
                 ))}
               </div>
             )}
+          </div>
+
+          <div className="space-y-2">
+            <label className="text-sm font-medium">WhatsApp Number</label>
+            <div className="phone-input-container">
+              <PhoneInput
+                country={'in'} // Default to India
+                value={phone}
+                onChange={(phone) => setPhone('+' + phone)}
+                inputClass="!w-full !h-10 !bg-background/50 !text-foreground !border-input"
+                containerClass="!w-full"
+                buttonClass="!bg-background/50 !border-input"
+                dropdownClass="!bg-background !text-foreground"
+                searchClass="!bg-background !text-foreground"
+                enableSearch={true}
+                searchPlaceholder="Search country..."
+                inputProps={{
+                  required: true,
+                  placeholder: 'Enter WhatsApp number'
+                }}
+              />
+            </div>
+            <p className="text-xs text-muted-foreground">
+              This number will be used for WhatsApp communication
+            </p>
           </div>
 
           <div className="flex justify-end gap-3 pt-4">
