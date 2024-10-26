@@ -33,7 +33,7 @@ export default function Home() {
   return (
     <div className="min-h-screen bg-background">
       <nav className="border-b border-secondary/20 backdrop-blur-lg bg-background/80 sticky top-0 z-50">
-        <div className="container mx-auto px-4 py-4">
+        <div className="max-w-7xl mx-auto px-6 lg:px-8 py-4">
           <div className="flex justify-between items-center">
             <div className="flex items-center gap-3">
               <div className="h-10 w-10 bg-primary rounded-xl flex items-center justify-center">
@@ -60,10 +60,10 @@ export default function Home() {
         </div>
       </nav>
 
-      <main className="container mx-auto px-4 py-8">
+      <main className="max-w-7xl mx-auto px-6 lg:px-8 py-12">
         {session ? (
-          <div className="space-y-12">
-            <section className="space-y-6">
+          <div className="space-y-16">
+            <section className="space-y-8">
               <div className="flex justify-between items-center">
                 <h2 className="text-2xl font-semibold text-foreground">Featured Developers</h2>
                 <Button 
@@ -77,7 +77,7 @@ export default function Home() {
               <FeaturedDevelopers />
             </section>
 
-            <section className="space-y-6">
+            <section className="space-y-8">
               <div className="flex justify-between items-center">
                 <h2 className="text-2xl font-semibold text-foreground">All Projects</h2>
               </div>
@@ -85,7 +85,7 @@ export default function Home() {
             </section>
           </div>
         ) : (
-          <div className="flex flex-col items-center justify-center py-20 space-y-8">
+          <div className="flex flex-col items-center justify-center py-24 space-y-10">
             <div className="h-20 w-20 bg-primary rounded-2xl flex items-center justify-center mb-4">
               <Code2 className="text-white h-12 w-12" />
             </div>

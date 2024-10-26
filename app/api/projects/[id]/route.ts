@@ -4,6 +4,7 @@ import { authOptions } from '@/app/api/auth/[...nextauth]/route';
 import connectDB from '@/lib/mongodb';
 import Project from '@/models/Project';
 import User from '@/models/User';
+import { Types } from 'mongoose';
 
 export async function DELETE(
   request: Request,
@@ -88,6 +89,51 @@ export async function PUT(
     return NextResponse.json(updatedProject);
   } catch (error) {
     console.error('Failed to update project:', error);
+    return new NextResponse('Internal Server Error', { status: 500 });
+  }
+}
+
+export async function GET(
+  request: Request,
+  { params }: { params: { id: string } }
+) {
+  try {
+    if (!params.id || !Types.ObjectId.isValid(params.id)) {
+      return new NextResponse('Invalid project ID', { status: 400 });
+    }
+
+    await connectDB();
+
+    const project = await Project.findById(params.id)
+      .populate('owner', 'name image email')
+      .populate('members.user', 'name image email')
+      .lean();
+
+    if (!project) {
+      return new NextResponse('Project not found', { status: 404 });
+    }
+
+    // Convert _id to string for serialization
+    const serializedProject = {
+      ...project,
+      _id: project._id.toString(),
+      owner: {
+        ...project.owner,
+        _id: project.owner._id.toString()
+      },
+      members: project.members.map(member => ({
+        ...member,
+        _id: member._id.toString(),
+        user: {
+          ...member.user,
+          _id: member.user._id.toString()
+        }
+      }))
+    };
+
+    return NextResponse.json(serializedProject);
+  } catch (error) {
+    console.error('Failed to fetch project:', error);
     return new NextResponse('Internal Server Error', { status: 500 });
   }
 }

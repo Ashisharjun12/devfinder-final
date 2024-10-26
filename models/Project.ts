@@ -1,22 +1,5 @@
 import mongoose from 'mongoose';
 
-const CollaboratorSchema = new mongoose.Schema({
-  user: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'User',
-    required: true
-  },
-  role: {
-    type: String,
-    enum: ['OWNER', 'CONTRIBUTOR', 'PENDING'],
-    default: 'PENDING'
-  },
-  joinedAt: {
-    type: Date,
-    default: Date.now
-  }
-});
-
 const ProjectSchema = new mongoose.Schema({
   owner: {
     type: mongoose.Schema.Types.ObjectId,
@@ -54,10 +37,39 @@ const ProjectSchema = new mongoose.Schema({
     enum: ['OPEN', 'IN_PROGRESS', 'COMPLETED', 'ON_HOLD'],
     default: 'OPEN',
   },
-  collaborators: {
-    type: [CollaboratorSchema],
-    default: [],
-  },
+  connectionRequests: [{
+    user: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'User',
+      required: true
+    },
+    status: {
+      type: String,
+      enum: ['PENDING', 'ACCEPTED', 'REJECTED'],
+      default: 'PENDING'
+    },
+    message: String,
+    createdAt: {
+      type: Date,
+      default: Date.now
+    }
+  }],
+  members: [{
+    user: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'User',
+      required: true
+    },
+    role: {
+      type: String,
+      enum: ['OWNER', 'MEMBER'],
+      default: 'MEMBER'
+    },
+    joinedAt: {
+      type: Date,
+      default: Date.now
+    }
+  }],
   createdAt: {
     type: Date,
     default: Date.now,
@@ -66,6 +78,8 @@ const ProjectSchema = new mongoose.Schema({
     type: Date,
     default: Date.now,
   }
+}, {
+  timestamps: true
 });
 
 ProjectSchema.index({ title: 'text', description: 'text' });

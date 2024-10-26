@@ -38,7 +38,7 @@ export async function GET(request: Request) {
     
     const projects = await Project.find(mongoQuery)
       .populate('owner', 'name image email')
-      .populate('collaborators.user', 'name image')
+      .populate('members.user', 'name image email')
       .sort({ createdAt: -1 });
 
     return NextResponse.json(projects);
@@ -74,7 +74,7 @@ export async function POST(req: Request) {
       );
     }
 
-    // Create project with properly structured data
+    // Create project with owner as first member
     const projectData = {
       owner: user._id,
       title,
@@ -82,9 +82,10 @@ export async function POST(req: Request) {
       requiredSkills,
       stage: stage || 'OPEN',
       githubUrl: githubUrl || null,
-      collaborators: [{
+      members: [{
         user: user._id,
         role: 'OWNER',
+        status: 'ACCEPTED',
         joinedAt: new Date()
       }]
     };
@@ -99,8 +100,8 @@ export async function POST(req: Request) {
 
     // Populate owner details for the response
     const populatedProject = await Project.findById(project._id)
-      .populate('owner', 'name image')
-      .populate('collaborators.user', 'name image');
+      .populate('owner', 'name image email')
+      .populate('members.user', 'name image email');
 
     return new NextResponse(
       JSON.stringify(populatedProject), 
