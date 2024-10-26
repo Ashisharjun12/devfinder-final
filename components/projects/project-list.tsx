@@ -1,57 +1,51 @@
 "use client"
 
-import { useEffect, useState } from 'react';
-import { getProjects } from '@/lib/actions/project.actions';
+import { useVirtualizer } from '@tanstack/react-virtual';
+import { useRef, memo } from 'react';
 import { ProjectCard } from './project-card';
-import { useRouter } from 'next/navigation';
 
-// Create a custom event for project updates
-export const PROJECT_UPDATED_EVENT = 'projectUpdated';
+// Memoized ProjectCard for better performance
+const MemoizedProjectCard = memo(ProjectCard);
 
-export function ProjectList() {
-  const [projects, setProjects] = useState([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const router = useRouter();
+export function ProjectList({ projects }: { projects: any[] }) {
+  const parentRef = useRef<HTMLDivElement>(null);
 
-  const fetchProjects = async () => {
-    try {
-      setIsLoading(true);
-      const data = await getProjects();
-      setProjects(data);
-    } catch (error) {
-      console.error('Error fetching projects:', error);
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    fetchProjects();
-
-    // Listen for project updates
-    const handleProjectUpdate = () => {
-      fetchProjects();
-    };
-
-    window.addEventListener(PROJECT_UPDATED_EVENT, handleProjectUpdate);
-
-    return () => {
-      window.removeEventListener(PROJECT_UPDATED_EVENT, handleProjectUpdate);
-    };
-  }, []);
-
-  if (isLoading) {
-    return <div>Loading...</div>;
-  }
+  const virtualizer = useVirtualizer({
+    count: projects.length,
+    getScrollElement: () => parentRef.current,
+    estimateSize: () => 300, // Estimated height of each project card
+    overscan: 5 // Number of items to render outside visible area
+  });
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-      {projects.map((project) => (
-        <ProjectCard 
-          key={project.id} 
-          project={project}
-        />
-      ))}
+    <div 
+      ref={parentRef} 
+      className="h-[800px] overflow-auto"
+      style={{ contain: 'strict' }}
+    >
+      <div
+        style={{
+          height: `${virtualizer.getTotalSize()}px`,
+          width: '100%',
+          position: 'relative',
+        }}
+      >
+        {virtualizer.getVirtualItems().map((virtualItem) => (
+          <div
+            key={virtualItem.key}
+            style={{
+              position: 'absolute',
+              top: 0,
+              left: 0,
+              width: '100%',
+              height: `${virtualItem.size}px`,
+              transform: `translateY(${virtualItem.start}px)`,
+            }}
+          >
+            <MemoizedProjectCard project={projects[virtualItem.index]} />
+          </div>
+        ))}
+      </div>
     </div>
   );
 }

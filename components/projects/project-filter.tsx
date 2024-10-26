@@ -12,13 +12,16 @@ export function ProjectFilter({ onFilterChange }: { onFilterChange: (filters: an
     status: "all"
   });
 
+  // Debounce search to prevent excessive API calls
   const debouncedSearch = useDebounce(filters.search, 300);
 
+  // Memoize filter options to prevent unnecessary re-renders
   const filterOptions = useMemo(() => ({
     categories: ["all", "web", "mobile", "design"],
     statuses: ["all", "active", "completed", "archived"]
   }), []);
 
+  // Memoize filter change handler
   const handleFilterChange = useCallback((key: string, value: string) => {
     const newFilters = { ...filters, [key]: value };
     setFilters(newFilters);

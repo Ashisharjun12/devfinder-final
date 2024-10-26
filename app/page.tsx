@@ -93,6 +93,11 @@ export default function Home() {
     }
   };
 
+  
+    const handleJoinCommunity = () => {
+      window.open('https://chat.whatsapp.com/B8aC6Tpt7EJA8ykRdEzK27', '_blank');
+    };
+
   const handleSearch = useCallback(({ text, techs }: { text: string; techs: string[] }) => {
     let filtered = [...projects];
 
@@ -256,14 +261,14 @@ export default function Home() {
                     <p className="text-muted-foreground max-w-xl mx-auto mb-8">
                       Join our community of developers and start collaborating on exciting projects today.
                     </p>
-                    <Link href="/auth/signin">
-                      <Button 
+                    
+                      <Button onClick={handleJoinCommunity}
                         className="bg-primary hover:bg-primary-hover text-white rounded-full px-8 py-6 text-lg transition-all duration-300 hover:scale-105 shadow-lg hover:shadow-primary/20"
                       >
                         Join Now
                         <ArrowRight className="ml-2 h-5 w-5" />
                       </Button>
-                    </Link>
+                    
                   </div>
                 </div>
               </div>

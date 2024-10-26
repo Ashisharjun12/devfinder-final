@@ -13,6 +13,7 @@ export async function getProjects(query: ProjectQuery = {}) {
   const cached = projectCache.get(cacheKey);
   if (cached) return cached;
 
+  // Build efficient MongoDB query using indexes
   const filter: any = {};
   if (query.userId) filter.userId = query.userId;
   if (query.status) filter.status = query.status;
@@ -32,38 +33,4 @@ export async function getProjects(query: ProjectQuery = {}) {
 
   projectCache.put(cacheKey, projects);
   return projects;
-}
-
-export async function createProject(data: any) {
-  const project = await db.collection('projects').insertOne({
-    ...data,
-    createdAt: new Date(),
-    updatedAt: new Date()
-  });
-  
-  projectCache.put('recent', null);
-  return project;
-}
-
-export async function updateProject(data: any) {
-  const { id, ...updateData } = data;
-  
-  const project = await db.collection('projects').findOneAndUpdate(
-    { _id: id },
-    { 
-      $set: {
-        ...updateData,
-        updatedAt: new Date()
-      }
-    },
-    { returnDocument: 'after' }
-  );
-  
-  projectCache.put('recent', null);
-  return project;
-}
-
-export async function deleteProject(id: string) {
-  await db.collection('projects').deleteOne({ _id: id });
-  projectCache.put('recent', null);
 }
