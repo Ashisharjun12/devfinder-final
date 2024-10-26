@@ -1,35 +1,33 @@
 import { getToken } from 'next-auth/jwt';
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
+import type { JWT } from 'next-auth/jwt';
+import md5 from 'md5';
+
+interface CustomJWT extends JWT {
+  user?: {
+    name?: string | null;
+    email?: string | null;
+    image?: string | null;
+  }
+}
 
 export async function middleware(request: NextRequest) {
-  const token = await getToken({ req: request });
-  const isAuthPage = request.nextUrl.pathname.startsWith('/auth');
+  const session = await getToken({ req: request, secret: process.env.NEXTAUTH_SECRET }) as CustomJWT;
 
-  if (isAuthPage) {
-    if (token) {
-      // If user is already logged in and tries to access auth pages,
-      // redirect to home page
-      return NextResponse.redirect(new URL('/', request.url));
-    }
-    // Allow access to auth pages for non-logged in users
-    return NextResponse.next();
-  }
+  if (session?.user) {
+    // Ensure we always have an image URL from Google
+    const image = session.user.image || 
+      (session.user.email ? `https://www.gravatar.com/avatar/${md5(session.user.email)}?d=mp` : null);
 
-  // Protect these routes
-  const protectedPaths = ['/projects', '/profile', '/messages'];
-  const isProtectedPath = protectedPaths.some(path => 
-    request.nextUrl.pathname.startsWith(path)
-  );
+    // Create the user object with consistent image handling
+    const user = {
+      ...session.user,
+      image: image,
+    };
 
-  if (isProtectedPath) {
-    if (!token) {
-      // Redirect to login if trying to access protected route without being logged in
-      const redirectUrl = new URL('/auth/signin', request.url);
-      redirectUrl.searchParams.set('callbackUrl', request.nextUrl.pathname);
-      return NextResponse.redirect(redirectUrl);
-    }
-    return NextResponse.next();
+    // Update the request headers with the modified user info
+    request.headers.set('x-user-info', JSON.stringify(user));
   }
 
   return NextResponse.next();
