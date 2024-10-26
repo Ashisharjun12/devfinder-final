@@ -2,20 +2,25 @@
 const nextConfig = {
   images: {
     domains: ['www.gravatar.com', 'lh3.googleusercontent.com'],
+    unoptimized: true
   },
   experimental: {
     serverActions: true,
   },
-  // Add performance optimizations
-  poweredByHeader: false,
-  compress: true,
-  reactStrictMode: true,
-  swcMinify: true,
-  // Cache optimization
-  onDemandEntries: {
-    maxInactiveAge: 60 * 60 * 1000,
-    pagesBufferLength: 2,
+  webpack: (config, { isServer }) => {
+    if (!isServer) {
+      config.resolve.fallback = {
+        ...config.resolve.fallback,
+        dns: false,
+        fs: false,
+        net: false,
+        tls: false,
+        'mongodb-client-encryption': false
+      };
+    }
+    return config;
   },
+  output: 'standalone',
 }
 
 module.exports = nextConfig
