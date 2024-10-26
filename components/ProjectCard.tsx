@@ -18,6 +18,14 @@ import {
 import { EditProjectDialog } from './EditProjectDialog';
 import { useToast } from './ui/use-toast';
 import { useRouter } from 'next/navigation';
+import { useSession } from "next-auth/react";
+import md5 from 'md5';
+
+interface Owner {
+  name?: string | null;
+  email?: string | null;
+  image?: string | null;
+}
 
 interface Project {
   _id: string;
@@ -26,11 +34,7 @@ interface Project {
   requiredSkills: string[];
   githubUrl?: string;
   stage: string;
-  owner: {
-    name: string;
-    image: string;
-    email: string;
-  };
+  owner: Owner;
   createdAt: string;
 }
 
@@ -41,11 +45,33 @@ interface ProjectCardProps {
   onDelete?: () => void;
 }
 
+const getAvatarData = (owner: Owner) => {
+  const name = owner.name || 'Anonymous';
+  const initials = name
+    .split(' ')
+    .map(n => n[0])
+    .join('')
+    .toUpperCase();
+  
+  let imageUrl = owner.image;
+  
+  // If no image but email exists, use Gravatar
+  if (!imageUrl && owner.email) {
+    imageUrl = `https://www.gravatar.com/avatar/${md5(owner.email)}?d=mp`;
+  }
+
+  return {
+    imageUrl,
+    initials,
+    displayName: name
+  };
+};
+
 export function ProjectCard({ project, isOwner, onUpdate, onDelete }: ProjectCardProps) {
   const { toast } = useToast();
   const router = useRouter();
-
-  
+  const { data: session } = useSession();
+  const { imageUrl, initials, displayName } = getAvatarData(project.owner);
 
   const handleDelete = async () => {
     if (!confirm('Are you sure you want to delete this project?')) return;
@@ -83,12 +109,12 @@ export function ProjectCard({ project, isOwner, onUpdate, onDelete }: ProjectCar
     <Card className="hover:border-primary/50 transition-all hover:shadow-lg hover:shadow-primary/20 bg-secondary/50 flex flex-col">
       <CardHeader className="flex flex-row items-center gap-4">
         <Avatar className="h-10 w-10 ring-2 ring-primary/20">
-          <AvatarImage src={project.owner.image} alt={project.owner.name} />
-          <AvatarFallback>{project.owner.name[0]}</AvatarFallback>
+          <AvatarImage src={imageUrl || undefined} alt={displayName} />
+          <AvatarFallback delayMs={600}>{initials}</AvatarFallback>
         </Avatar>
         <div className="flex-1">
           <h3 className="font-medium">{project.title}</h3>
-          <p className="text-sm text-muted-foreground">by {project.owner.name}</p>
+          <p className="text-sm text-muted-foreground">by {displayName}</p>
         </div>
         {isOwner && (
           <DropdownMenu>
