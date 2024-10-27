@@ -35,6 +35,30 @@ export const authOptions: NextAuthOptions = {
         token.refreshToken = account.refresh_token;
       }
       return token;
+    },
+    async redirect({ url, baseUrl }) {
+      // Handle both domains
+      const allowedHosts = [
+        'devfinder3.vercel.app',
+        'devfinder.in'
+      ];
+      
+      // If relative URL, append to base
+      if (url.startsWith('/')) {
+        return `${baseUrl}${url}`;
+      }
+      
+      // Check if URL is allowed
+      try {
+        const urlHost = new URL(url).host;
+        if (allowedHosts.includes(urlHost)) {
+          return url;
+        }
+      } catch {
+        return baseUrl;
+      }
+      
+      return baseUrl;
     }
   },
   pages: {
