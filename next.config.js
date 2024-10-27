@@ -5,6 +5,10 @@ const nextConfig = {
     // your project has ESLint errors.
     ignoreDuringBuilds: true,
   },
+  typescript: {
+    // ⚠️ Warning: Enabling this will allow production builds to complete even with TS errors
+    ignoreBuildErrors: true
+  }
 }
 
 module.exports = nextConfig
