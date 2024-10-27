@@ -8,6 +8,14 @@ const nextConfig = {
   typescript: {
     // ⚠️ Warning: Enabling this will allow production builds to complete even with TS errors
     ignoreBuildErrors: true
+  },
+  experimental: {
+    serverActions: true
+  },
+  output: 'standalone',
+  images: {
+    domains: ['avatars.githubusercontent.com', 'lh3.googleusercontent.com'],
+    unoptimized: true
   }
 }
 
