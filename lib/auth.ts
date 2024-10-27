@@ -37,11 +37,12 @@ export const authOptions: NextAuthOptions = {
       return token;
     },
     async redirect({ url, baseUrl }) {
-      // Handle both domains
-      const allowedHosts = [
-        'devfinder3.vercel.app',
-        'devfinder.in'
-      ];
+      // Get allowed URLs from environment variables
+      const allowedUrls = [
+        process.env.NEXTAUTH_URL,
+        process.env.VERCEL_URL && `https://${process.env.VERCEL_URL}`,
+        process.env.NEXT_PUBLIC_APP_URL
+      ].filter(Boolean) as string[];
       
       // If relative URL, append to base
       if (url.startsWith('/')) {
@@ -50,8 +51,8 @@ export const authOptions: NextAuthOptions = {
       
       // Check if URL is allowed
       try {
-        const urlHost = new URL(url).host;
-        if (allowedHosts.includes(urlHost)) {
+        const urlHost = new URL(url).origin;
+        if (allowedUrls.includes(urlHost)) {
           return url;
         }
       } catch {
