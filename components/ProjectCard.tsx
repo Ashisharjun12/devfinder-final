@@ -107,14 +107,14 @@ export function ProjectCard({ project, isOwner, onUpdate, onDelete }: ProjectCar
 
   return (
     <Card className="hover:border-primary/50 transition-all hover:shadow-lg hover:shadow-primary/20 bg-secondary/50 flex flex-col">
-      <CardHeader className="flex flex-row items-center gap-4">
-        <Avatar className="h-10 w-10 ring-2 ring-primary/20">
+      <CardHeader className="flex flex-row items-start gap-3 sm:gap-4 p-3 sm:p-4">
+        <Avatar className="h-8 w-8 sm:h-10 sm:w-10 ring-2 ring-primary/20">
           <AvatarImage src={imageUrl || undefined} alt={displayName} />
           <AvatarFallback delayMs={600}>{initials}</AvatarFallback>
         </Avatar>
-        <div className="flex-1">
-          <h3 className="font-medium">{project.title}</h3>
-          <p className="text-sm text-muted-foreground">by {displayName}</p>
+        <div className="flex-1 min-w-0">
+          <h3 className="font-medium text-sm sm:text-base truncate">{project.title}</h3>
+          <p className="text-xs sm:text-sm text-muted-foreground">by {displayName}</p>
         </div>
         {isOwner && (
           <DropdownMenu>
@@ -145,20 +145,20 @@ export function ProjectCard({ project, isOwner, onUpdate, onDelete }: ProjectCar
           </DropdownMenu>
         )}
       </CardHeader>
-      <CardContent className="flex-1 flex flex-col space-y-4">
-        <p className="text-sm text-muted-foreground line-clamp-2">
+      <CardContent className="p-3 sm:p-4 space-y-3 sm:space-y-4">
+        <p className="text-xs sm:text-sm text-muted-foreground line-clamp-2">
           {project.description}
         </p>
 
-        <div className="flex flex-wrap gap-2">
+        <div className="flex flex-wrap gap-1.5 sm:gap-2">
           {project.requiredSkills.map((skill) => (
             <Badge
               key={skill}
               variant="secondary"
-              className="flex items-center gap-1.5 px-2.5 py-1.5 bg-secondary/80"
+              className="text-xs px-2 py-0.5 sm:px-2.5 sm:py-1"
             >
-              <TechIcon name={skill} className="h-4 w-4" showBackground />
-              <span>{skill}</span>
+              <TechIcon name={skill} className="h-3 w-3 sm:h-4 sm:w-4 mr-1.5" />
+              <span className="truncate max-w-[100px] sm:max-w-[150px]">{skill}</span>
             </Badge>
           ))}
         </div>

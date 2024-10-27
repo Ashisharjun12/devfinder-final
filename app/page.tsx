@@ -4,7 +4,7 @@ import { useSession } from "next-auth/react";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import UserNav from "@/components/UserNav";
-import { ArrowRight, Code2, Users, Rocket, Sparkles, Globe2, Zap, Shield, GitBranch, MessageSquare } from "lucide-react";
+import { ArrowRight, Code2, Users, Rocket, Sparkles, Globe2, Zap, Shield, GitBranch, MessageSquare, Menu, Plus } from "lucide-react";
 import CreateProjectDialog from "@/components/CreateProjectDialog";
 import { useEffect, useState, useCallback } from "react";
 import { Card, CardContent } from "@/components/ui/card";
@@ -16,6 +16,13 @@ import { SearchBar } from "@/components/SearchBar";
 import { ProjectCard } from '@/components/ProjectCard';
 import { ProjectFilter } from "@/components/ProjectFilter";
 import { motion } from "framer-motion";
+import {
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+} from "@/components/ui/sheet";
 
 interface Project {
   _id: string;
@@ -136,28 +143,75 @@ export default function Home() {
 
   return (
     <div className="min-h-screen bg-background flex flex-col">
+      {/* Modern Mobile-First Navigation */}
       <nav className="border-b border-secondary/20 backdrop-blur-lg bg-background/80 sticky top-0 z-50">
-        <div className="max-w-7xl mx-auto px-6 lg:px-8 py-4">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3 sm:py-4">
           <div className="flex justify-between items-center">
-            <div className="flex items-center gap-3">
-              <div className="h-10 w-10 bg-primary rounded-xl flex items-center justify-center">
-                <Code2 className="text-white h-6 w-6" />
+            {/* Logo Section - More compact on mobile */}
+            <div className="flex items-center gap-2 sm:gap-3">
+              <div className="h-8 w-8 sm:h-10 sm:w-10 bg-primary rounded-xl flex items-center justify-center">
+                <Code2 className="text-white h-5 w-5 sm:h-6 sm:w-6" />
               </div>
-              <h1 className="text-2xl font-bold text-foreground">DevFinder</h1>
+              <h1 className="text-lg sm:text-2xl font-bold text-foreground">DevFinder</h1>
             </div>
+
+            {/* Mobile Menu - Modern Sheet Design */}
+            {session && (
+              <Sheet>
+                <SheetTrigger asChild>
+                  <Button 
+                    variant="ghost" 
+                    size="icon" 
+                    className="md:hidden fixed top-4 left-4 z-50 h-8 w-8 rounded-full bg-secondary/80"
+                  >
+                    <Menu className="h-4 w-4" />
+                  </Button>
+                </SheetTrigger>
+                <SheetContent 
+                  side="left" 
+                  className="w-[280px] sm:w-[320px] bg-background/95 backdrop-blur-lg border-r border-primary/10"
+                >
+                  <SheetHeader>
+                    <SheetTitle className="text-lg flex items-center gap-2">
+                      <Code2 className="h-5 w-5 text-primary" />
+                      Menu
+                    </SheetTitle>
+                  </SheetHeader>
+                  <div className="mt-8 space-y-4">
+                    <CreateProjectDialog 
+                      trigger={
+                        <Button className="w-full justify-start gap-3 text-base h-11 rounded-lg bg-primary/10 hover:bg-primary/20 text-primary border-none">
+                          <Plus className="h-5 w-5" />
+                          Create Project
+                        </Button>
+                      }
+                    />
+                    
+                    <Button 
+                      onClick={handleJoinCommunity}
+                      className="w-full justify-start gap-3 text-base h-11 rounded-lg bg-[#25D366]/10 hover:bg-[#25D366]/20 text-[#25D366] border-none"
+                    >
+                      <Users className="h-5 w-5" />
+                      Join Community
+                    </Button>
+                  </div>
+                </SheetContent>
+              </Sheet>
+            )}
+
+            {/* Desktop Navigation */}
             <div className="flex items-center gap-4">
               {session && (
-                <>
-                  {/* Join Community Button */}
+                <div className="hidden md:flex items-center gap-4">
                   <Button 
                     onClick={handleJoinCommunity}
-                    className="rounded-full bg-[#25D366] hover:bg-[#128C7E] text-white flex items-center gap-2 px-6 transition-all duration-300"
+                    className="rounded-full bg-[#25D366] hover:bg-[#128C7E] text-white flex items-center gap-2 px-6 h-10"
                   >
                     <Users className="h-5 w-5" />
                     Join Community
                   </Button>
                   <CreateProjectDialog />
-                </>
+                </div>
               )}
               {session ? (
                 <UserNav user={session.user} />
@@ -176,6 +230,7 @@ export default function Home() {
         </div>
       </nav>
 
+      {/* Main content */}
       <main className="max-w-7xl mx-auto px-6 lg:px-8 py-12">
         {session ? (
           // Logged in content
@@ -235,7 +290,7 @@ export default function Home() {
               </div>
             </div>
 
-            {/* Featured Projects - Show only 3 most recent */}
+            {/* Featured Projects with horizontal scroll on mobile */}
             {projects.length > 0 && (
               <div className="space-y-8">
                 <div className="text-center">
@@ -244,6 +299,8 @@ export default function Home() {
                     Discover our latest projects. Sign in to explore more and start collaborating.
                   </p>
                 </div>
+                
+                {/* Projects Grid - Same for both mobile and desktop */}
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                   {projects
                     .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
@@ -256,6 +313,7 @@ export default function Home() {
                       />
                     ))}
                 </div>
+
                 <div className="text-center pt-8">
                   <Link href="/auth/signin">
                     <Button 
@@ -269,83 +327,78 @@ export default function Home() {
                 </div>
               </div>
             )}
+
+            {/* Stats Section */}
+            <div className="max-w-7xl mx-auto px-6 lg:px-8">
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-8 bg-secondary/30 rounded-xl p-8 border border-primary/10">
+                {[
+                  { label: "Active Projects", value: "50+" },
+                  { label: "Developers", value: "2,00+" },
+                  { label: "Technologies", value: "100+" },
+                  { label: "Collaborations", value: "1,00+" }
+                ].map((stat) => (
+                  <div key={stat.label} className="text-center space-y-2">
+                    <div className="text-2xl md:text-3xl font-bold text-primary">{stat.value}</div>
+                    <div className="text-sm text-muted-foreground">{stat.label}</div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Join CTA Section */}
+            <div className="max-w-7xl mx-auto px-6 lg:px-8">
+              <div className="bg-gradient-to-b from-secondary/50 to-transparent p-12 rounded-xl border border-primary/10 text-center">
+                <h3 className="text-2xl md:text-3xl font-bold mb-4">
+                  Ready to Start Building?
+                </h3>
+                <p className="text-muted-foreground max-w-xl mx-auto mb-8">
+                  Join our community of developers and start collaborating on exciting projects today.
+                </p>
+                <div className="flex justify-center">
+                  <Button 
+                    onClick={handleJoinCommunity}
+                    className="bg-primary hover:bg-primary-hover text-white rounded-full px-8 py-6 text-lg transition-all duration-300 hover:scale-105 shadow-lg hover:shadow-primary/20"
+                  >
+                    Join Now
+                    <ArrowRight className="ml-2 h-5 w-5" />
+                  </Button>
+                </div>
+              </div>
+            </div>
+
+            {/* Footer */}
+            <footer className="mt-auto border-t border-primary/10 bg-secondary/5">
+              <div className="max-w-7xl mx-auto px-6 lg:px-8 py-8">
+                <div className="flex flex-col items-center justify-center gap-4">
+                  <div className="flex items-center gap-2">
+                    <Code2 className="h-5 w-5 text-primary" />
+                    <p className="text-sm text-muted-foreground">
+                      © 2024 KaleHunt. All rights reserved.
+                    </p>
+                  </div>
+                  
+                  {/* Social Links */}
+                  <div className="flex items-center gap-4">
+                    {[
+                      { label: "Twitter", href: "#" },
+                      { label: "GitHub", href: "https://github.com/Ashisharjun12" },
+                      { label: "Discord", href: "#" }
+                    ].map((link) => (
+                      <a
+                        key={link.label}
+                        href={link.href}
+                        className="text-sm text-muted-foreground hover:text-primary transition-colors"
+                      >
+                        {link.label}
+                      </a>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </footer>
           </div>
         )}
       </main>
-
-      {/* Stats and Join CTA Section */}
-      {!session && (
-        <div>
-          {/* Stats Section */}
-          <div className="max-w-7xl mx-auto px-6 lg:px-8 mt-16">
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-8 bg-secondary/30 rounded-xl p-8 border border-primary/10">
-              {[
-                { label: "Active Projects", value: "50+" },
-                { label: "Developers", value: "2,00+" },
-                { label: "Technologies", value: "100+" },
-                { label: "Collaborations", value: "1,00+" }
-              ].map((stat, index) => (
-                <div key={stat.label} className="text-center space-y-2">
-                  <div className="text-2xl md:text-3xl font-bold text-primary">{stat.value}</div>
-                  <div className="text-sm text-muted-foreground">{stat.label}</div>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          {/* Join CTA Section - Centered */}
-          <div className="max-w-7xl mx-auto px-6 lg:px-8 mt-16">
-            <div className="bg-gradient-to-b from-secondary/50 to-transparent p-12 rounded-xl border border-primary/10 text-center">
-              <h3 className="text-2xl md:text-3xl font-bold mb-4">
-                Ready to Start Building?
-              </h3>
-              <p className="text-muted-foreground max-w-xl mx-auto mb-8">
-                Join our community of developers and start collaborating on exciting projects today.
-              </p>
-              <div className="flex justify-center">
-                <Button 
-                  onClick={handleJoinCommunity}
-                  className="bg-primary hover:bg-primary-hover text-white rounded-full px-8 py-6 text-lg transition-all duration-300 hover:scale-105 shadow-lg hover:shadow-primary/20"
-                >
-                  Join Now
-                  <ArrowRight className="ml-2 h-5 w-5" />
-                </Button>
-              </div>
-            </div>
-          </div>
-
-          {/* Footer remains the same */}
-          <footer className="mt-auto border-t border-primary/10 bg-secondary/5 relative">
-            <div className="max-w-7xl mx-auto px-6 lg:px-8 py-8">
-              <div className="flex flex-col items-center justify-center gap-4">
-                <div className="flex items-center gap-2">
-                  <Code2 className="h-5 w-5 text-primary" />
-                  <p className="text-sm text-muted-foreground">
-                    © 2024 KaleHunt. All rights reserved.
-                  </p>
-                </div>
-                
-                {/* Social Links */}
-                <div className="flex items-center gap-4">
-                  {[
-                    { label: "Twitter", href: "#" },
-                    { label: "GitHub", href: "https://github.com/Ashisharjun12" },
-                    { label: "Discord", href: "#" }
-                  ].map((link) => (
-                    <a
-                      key={link.label}
-                      href={link.href}
-                      className="text-sm text-muted-foreground hover:text-primary transition-colors"
-                    >
-                      {link.label}
-                    </a>
-                  ))}
-                </div>
-              </div>
-            </div>
-          </footer>
-        </div>
-      )}
 
       {/* Feedback Button - Show for all users */}
       <div className="fixed bottom-8 right-8 z-50">
@@ -356,7 +409,8 @@ export default function Home() {
           className="rounded-full bg-primary hover:bg-primary-hover text-white shadow-lg hover:shadow-primary/20 transition-all duration-300"
         >
           <MessageSquare className="h-4 w-4 mr-2" />
-          Send Feedback
+          <span className=" sm:inline">Send Feedback</span>
+          
         </Button>
       </div>
     </div>

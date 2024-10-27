@@ -10,17 +10,18 @@ interface ProjectFilterProps {
 
 export function ProjectFilter({ currentFilter, onFilterChange }: ProjectFilterProps) {
   return (
-    <div className="flex gap-4">
+    <div className="flex gap-2 sm:gap-4 w-full">
       <Button
         variant={currentFilter === 'all' ? 'default' : 'outline'}
         onClick={() => onFilterChange('all')}
-        className={`relative px-6 ${
+        className={`relative flex-1 sm:flex-none px-3 sm:px-6 text-xs sm:text-sm ${
           currentFilter === 'all' 
             ? 'bg-primary hover:bg-primary-hover text-white' 
             : 'hover:border-primary/50 hover:text-white'
         }`}
       >
-        All Projects
+        <span className="hidden sm:inline">All Projects</span>
+        <span className="sm:hidden">All</span>
         {currentFilter === 'all' && (
           <motion.div
             layoutId="activeFilter"
@@ -33,13 +34,14 @@ export function ProjectFilter({ currentFilter, onFilterChange }: ProjectFilterPr
       <Button
         variant={currentFilter === 'my' ? 'default' : 'outline'}
         onClick={() => onFilterChange('my')}
-        className={`relative px-6 ${
+        className={`relative flex-1 sm:flex-none px-3 sm:px-6 text-xs sm:text-sm ${
           currentFilter === 'my' 
             ? 'bg-primary hover:bg-primary-hover text-white' 
             : 'hover:border-primary/50 hover:text-white'
         }`}
       >
-        My Projects
+        <span className="hidden sm:inline">My Projects</span>
+        <span className="sm:hidden">My Projects</span>
         {currentFilter === 'my' && (
           <motion.div
             layoutId="activeFilter"

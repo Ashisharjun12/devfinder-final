@@ -17,6 +17,7 @@ import { useRouter } from 'next/router';
 import CreateProjectDialog from "./CreateProjectDialog";
 import { ProjectCard } from './ProjectCard';
 import { ProjectFilter } from './ProjectFilter';
+import { Users } from 'lucide-react';
 
 interface Project {
   _id: string;
@@ -154,10 +155,42 @@ export default function AllProjects({ initialProjects }: AllProjectsProps) {
         <SearchBar onSearch={handleSearch} projectSkills={allProjectSkills} />
       </div>
 
+      {/* Responsive Header */}
+      <div className="sticky top-0 z-10 bg-background/80 backdrop-blur-sm border-b border-primary/10 -mx-4 px-4 py-3 sm:py-4">
+        <div className="flex items-center justify-between gap-4">
+          <h1 className="text-lg sm:text-2xl font-bold">Projects</h1>
+          <div className="flex items-center gap-2">
+            <Link href="/projects/new">
+              {/* Mobile version */}
+              <Button size="icon" className="sm:hidden h-8 w-8">
+                <Plus className="h-4 w-4" />
+              </Button>
+              {/* Desktop version */}
+              <Button className="hidden sm:flex gap-2">
+                <Plus className="h-4 w-4" />
+                Add Project
+              </Button>
+            </Link>
+            
+            <Link href="/community">
+              {/* Mobile version */}
+              <Button variant="outline" size="icon" className="sm:hidden h-8 w-8">
+                <Users className="h-4 w-4" />
+              </Button>
+              {/* Desktop version */}
+              <Button variant="outline" className="hidden sm:flex gap-2">
+                <Users className="h-4 w-4" />
+                Community
+              </Button>
+            </Link>
+          </div>
+        </div>
+      </div>
+
       {/* Projects Grid with Animation */}
       {filteredProjects.length > 0 ? (
         <motion.div 
-          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
+          className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4 lg:gap-6"
           initial="hidden"
           animate="show"
           variants={{
