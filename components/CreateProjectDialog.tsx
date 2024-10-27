@@ -42,6 +42,17 @@ const CreateProjectDialog = ({ onProjectCreated }: CreateProjectDialogProps) => 
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    // Add phone validation
+    if (!phone || phone.length < 10) {
+      toast({
+        title: "Error",
+        description: "Please enter a valid phone number",
+        variant: "destructive",
+      });
+      return;
+    }
+
     setIsSubmitting(true);
     try {
       const response = await fetch('/api/projects', {
@@ -55,7 +66,7 @@ const CreateProjectDialog = ({ onProjectCreated }: CreateProjectDialogProps) => 
           githubUrl: githubUrl.trim(),
           requiredSkills: selectedTech,
           stage: 'OPEN',
-          whatsappNumber: phone ? `+${phone}` : null, // Format phone number with +
+          whatsappNumber: `+${phone}`, // Remove the conditional
         }),
       });
 
@@ -64,6 +75,7 @@ const CreateProjectDialog = ({ onProjectCreated }: CreateProjectDialogProps) => 
           title: "Success!",
           description: "Project created successfully.",
         });
+        window.location.reload();
         handleOpenChange(false);
         onProjectCreated?.();
       } else {
@@ -205,10 +217,10 @@ const CreateProjectDialog = ({ onProjectCreated }: CreateProjectDialogProps) => 
           </div>
 
           <div className="space-y-2">
-            <label className="text-sm font-medium">WhatsApp Number (Optional)</label>
+            <label className="text-sm font-medium">WhatsApp Number</label>
             <div className="phone-input-container">
               <PhoneInput
-                country={'in'} // Default to India
+                country={'in'}
                 value={phone}
                 onChange={(phone) => setPhone(phone)}
                 inputClass="!w-full !h-10 !bg-background/50 !text-foreground !border-input"
@@ -219,7 +231,7 @@ const CreateProjectDialog = ({ onProjectCreated }: CreateProjectDialogProps) => 
                 enableSearch={true}
                 searchPlaceholder="Search country..."
                 inputProps={{
-                  required: false,
+                  required: true, // Changed to required
                   placeholder: 'Enter WhatsApp number'
                 }}
               />
@@ -241,7 +253,7 @@ const CreateProjectDialog = ({ onProjectCreated }: CreateProjectDialogProps) => 
             <Button
               type="submit"
               className="rounded-full bg-primary hover:bg-primary-hover px-6"
-              disabled={!title || !description || selectedTech.length === 0 || isSubmitting}
+              disabled={!title || !description || selectedTech.length === 0 || !phone || isSubmitting}
             >
               {isSubmitting ? 'Creating...' : 'Create Project'}
             </Button>

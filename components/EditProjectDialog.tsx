@@ -65,6 +65,7 @@ export function EditProjectDialog({ project, trigger, onProjectUpdated }: EditPr
           description: "Project updated successfully.",
         });
         setOpen(false);
+        window.location.reload();
         
         // Call the onProjectUpdated callback if provided
         if (onProjectUpdated) {

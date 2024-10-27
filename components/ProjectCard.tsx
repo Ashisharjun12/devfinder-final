@@ -87,6 +87,7 @@ export function ProjectCard({ project, isOwner, onUpdate, onDelete }: ProjectCar
           description: "Project deleted successfully",
         });
         onDelete?.(); // Call the callback after successful deletion
+        window.location.reload();
       } else {
         throw new Error('Failed to delete project');
       }
@@ -102,6 +103,7 @@ export function ProjectCard({ project, isOwner, onUpdate, onDelete }: ProjectCar
   const handleProjectUpdate = () => {
     // Call both the onUpdate callback and refresh the router
     onUpdate?.();
+    window.location.reload();
     router.refresh();
   };
 
