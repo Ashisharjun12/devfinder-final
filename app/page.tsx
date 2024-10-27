@@ -74,7 +74,7 @@ export default function Home() {
   const fetchProjects = useCallback(async () => {
     try {
       const response = await fetch('/api/projects');
-      console.log('Response:', response);
+      
       if (response.ok) {
         const data = await response.json();
         setProjects(data);
@@ -88,8 +88,7 @@ export default function Home() {
   }, []);
 
   useEffect(() => {
-    console.log('Fetching projects...', session);
-    console.log('Projects:', projects);
+    
     fetchProjects();
   }, [fetchProjects]);
 
