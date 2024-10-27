@@ -3,13 +3,10 @@ import GoogleProvider from 'next-auth/providers/google';
 import { MongoDBAdapter } from '@next-auth/mongodb-adapter';
 import clientPromise from '@/lib/mongodb-adapter';
 
-// Helper function to get allowed URLs
-const getAllowedUrls = () => {
-  const urls = process.env.NEXTAUTH_URL?.split('||') || [];
-  const vercelUrl = process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : null;
-  const publicUrl = process.env.NEXT_PUBLIC_APP_URL;
-  
-  return [...new Set([...urls, vercelUrl, publicUrl].filter(Boolean))] as string[];
+// Helper function to get base URL
+const getBaseUrl = () => {
+  // For deployment: try custom domain first, then fall back to Vercel URL
+  return process.env.NEXTAUTH_URL || `https://${process.env.VERCEL_URL}`;
 };
 
 export const authOptions: NextAuthOptions = {
@@ -46,7 +43,11 @@ export const authOptions: NextAuthOptions = {
       return token;
     },
     async redirect({ url, baseUrl }) {
-      const allowedUrls = getAllowedUrls();
+      // Allow both custom domain and Vercel URL
+      const allowedHosts = [
+        new URL(process.env.NEXTAUTH_URL || '').host,
+        process.env.VERCEL_URL
+      ].filter(Boolean);
       
       // If relative URL, append to base
       if (url.startsWith('/')) {
@@ -55,8 +56,8 @@ export const authOptions: NextAuthOptions = {
       
       // Check if URL is allowed
       try {
-        const urlHost = new URL(url).origin;
-        if (allowedUrls.includes(urlHost)) {
+        const urlHost = new URL(url).host;
+        if (allowedHosts.includes(urlHost)) {
           return url;
         }
       } catch {
